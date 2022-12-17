@@ -6,6 +6,9 @@
 #define DSH2_HASH_TABLE_H
 
 #include "wet2util.h"
+#include <iostream>
+
+using namespace std;
 
 int INITIAL_SIZE = 7;
 int C = 2;
@@ -34,6 +37,8 @@ private:
     int hash(int key, int size, int iteration);
     StatusType InsertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj);
     output_t<const T&> getAux(hash_obj<T> *arr, int arr_size, const T& demo_val, int key);
+
+    void printHash();
 public:
     explicit Hash_Table(bool (*isEmpty)(const T& val), bool (*isEqual)(const T& val));
     ~Hash_Table();
@@ -44,6 +49,9 @@ public:
 template<class T>
 Hash_Table<T>::Hash_Table(bool (*isEmpty)(const T &), bool (*isEqual)(const T& val)) : size(INITIAL_SIZE), objNum(0), isEmpty(isEmpty), isEqual(isEqual){
     this->arr = new hash_obj<T>[INITIAL_SIZE];
+    for(int i = 0; i<INITIAL_SIZE; i++){
+        this->arr[i] = NULL;
+    }
 }
 
 template<class T>
@@ -75,6 +83,9 @@ template<class T>
 StatusType Hash_Table<T>::IncreaseSize() {
     int new_size = nextPrime((this->size)*2);
     hash_obj<T>* temp = new T[new_size];
+    for(int i = 0; i<new_size; i++){
+        temp[i] = NULL;
+    }
     hash_obj<T> obj;
     for(int i = 0; i<this->size; i++){
         obj.key = this->arr[i].key;
@@ -146,6 +157,17 @@ output_t<const T &> Hash_Table<T>::getAux(hash_obj<T> *arr_, int arr_size, const
         iteration++;
     }
     return StatusType::FAILURE;
+}
+
+template<class T>
+void Hash_Table<T>::printHash() {
+    cout << "ARR_SIZE: " << this->size <<endl;
+    cout << "NUM_OBJ: " << this->objNum <<endl;
+    cout << "ARR:" <<endl;
+    for(int i = 0; i<this->size; i++){
+        cout<<this->arr[i];
+    }
+    cout<<endl;
 }
 
 
