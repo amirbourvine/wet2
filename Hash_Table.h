@@ -25,7 +25,7 @@ private:
 
     bool (*isEmpty)(const T& val);
     bool (*isEqual)(const T& t1, const T& t2);
-    
+
 
     StatusType IncreaseSize();
     bool isPrime(int num);
