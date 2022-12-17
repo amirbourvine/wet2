@@ -6,18 +6,127 @@
 #define DSH2_HASH_TABLE_H
 
 #include "wet2util.h"
-#include "Dynamic_Array.h"
+
+int INITIAL_SIZE = 7;
+int C = 2;
+
+template <class T>//T-values
+struct hash_obj{
+    int key;
+    const T& val;
+};
+
 template <class T>//T-values
 class Hash_Table{
 private:
-    Dynamic_Array<T> arr;
+    hash_obj<T>* arr;
+    int size;
+    int objNum;
+
     bool (*isEmpty)(const T& val);
     bool (*isEqual)(const T& t1, const T& t2);
 
+
+
+
+    StatusType IncreaseSize();
+    bool isPrime(int num);
+    int nextPrime(int start);
+    int hash(int key, int size, int iteration);
+    StatusType InsertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj);
 public:
+    explicit Hash_Table(bool (*isEmpty)(const T& val), bool (*isEqual)(const T& val));
+    ~Hash_Table();
     StatusType Insert(int key, const T& val);
-    StatusType Delete(int key);
     output_t<const T&> get(int key);
 };
+
+template<class T>
+Hash_Table<T>::Hash_Table(bool (*isEmpty)(const T &), bool (*isEqual)(const T& val)) : size(INITIAL_SIZE), objNum(0), isEmpty(isEmpty), isEqual(isEqual){
+    this->arr = new hash_obj<T>[INITIAL_SIZE];
+}
+
+template<class T>
+Hash_Table<T>::~Hash_Table() {
+    delete[] arr;
+}
+
+template<class T>
+bool Hash_Table<T>::isPrime(int num) {
+    for(int i = 2; i*i<=num; i++){
+        if(num%i==0)
+            return false;
+    }
+    return true;
+}
+
+template<class T>
+int Hash_Table<T>::nextPrime(int start) {
+    int temp = start;
+    while(true){
+        if(isPrime(temp)){
+            return temp;
+        }
+        temp++;
+    }
+}
+
+template<class T>
+StatusType Hash_Table<T>::IncreaseSize() {
+    int new_size = nextPrime((this->size)*2);
+    hash_obj<T>* temp = new T[new_size];
+    hash_obj<T> obj;
+    for(int i = 0; i<this->size; i++){
+        obj.key = this->arr[i].key;
+        obj.val = this->arr[i].val;
+        InsertAux(temp, new_size, obj);
+        this->arr[i] = NULL;
+    }
+    delete[] this->arr;
+    this->arr = temp;
+    this->size = new_size;
+}
+
+template<class T>
+int Hash_Table<T>::hash(int key, int arr_size, int iteration) {
+    int h = key % arr_size;
+    int r = 1 + (key%(arr_size-C));
+    return (h + iteration*r) % arr_size;
+}
+
+template<class T>
+StatusType Hash_Table<T>::InsertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj) {
+    if(arr==nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+    int iteration = 0;
+    while(iteration<arr_size){
+        if(this->isEmpty(arr[hash(obj.key, arr_size, iteration)])){
+            arr[hash(obj.key, arr_size, iteration)] = obj.val;//require copy c'tor on T
+            return StatusType::SUCCESS;
+        }
+        iteration++;
+    }
+    return StatusType::FAILURE;
+}
+
+template<class T>
+StatusType Hash_Table<T>::Insert(int key, const T &val) {
+    hash_obj<T> obj;
+    obj.key = key;
+    obj.val = val;
+
+    StatusType st = InsertAux(this->arr, this->size, obj);
+    if(st != StatusType::SUCCESS)
+        return st;
+    this->objNum = this->objNum + 1;
+    if(this->objNum == this->size){
+        st = this->IncreaseSize();
+    }
+    if(st != StatusType::SUCCESS)
+        return st;
+    return StatusType::SUCCESS;
+}
+
 
 #endif //DSH2_HASH_TABLE_H
