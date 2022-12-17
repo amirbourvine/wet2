@@ -25,20 +25,20 @@ private:
 
     bool (*isEmpty)(const T& val);
     bool (*isEqual)(const T& t1, const T& t2);
-
-
-
+    
 
     StatusType IncreaseSize();
     bool isPrime(int num);
     int nextPrime(int start);
+
     int hash(int key, int size, int iteration);
     StatusType InsertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj);
+    output_t<const T&> getAux(hash_obj<T> *arr, int arr_size, const T& demo_val, int key);
 public:
     explicit Hash_Table(bool (*isEmpty)(const T& val), bool (*isEqual)(const T& val));
     ~Hash_Table();
     StatusType Insert(int key, const T& val);
-    output_t<const T&> get(int key);
+    output_t<const T&> get(const T& demo_val, int key);
 };
 
 template<class T>
@@ -95,14 +95,14 @@ int Hash_Table<T>::hash(int key, int arr_size, int iteration) {
 }
 
 template<class T>
-StatusType Hash_Table<T>::InsertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj) {
-    if(arr==nullptr){
+StatusType Hash_Table<T>::InsertAux(hash_obj<T> *arr_, int arr_size, hash_obj<T> obj) {
+    if(arr_==nullptr){
         return StatusType::INVALID_INPUT;
     }
     int iteration = 0;
     while(iteration<arr_size){
-        if(this->isEmpty(arr[hash(obj.key, arr_size, iteration)])){
-            arr[hash(obj.key, arr_size, iteration)] = obj.val;//require copy c'tor on T
+        if(this->isEmpty(arr_[hash(obj.key, arr_size, iteration)])){
+            arr_[hash(obj.key, arr_size, iteration)] = obj.val;//require copy c'tor on T
             return StatusType::SUCCESS;
         }
         iteration++;
@@ -126,6 +126,26 @@ StatusType Hash_Table<T>::Insert(int key, const T &val) {
     if(st != StatusType::SUCCESS)
         return st;
     return StatusType::SUCCESS;
+}
+
+template<class T>
+output_t<const T &> Hash_Table<T>::get(const T& demo_val, int key) {
+    if(this->arr==nullptr){
+        return StatusType::FAILURE;
+    }
+    return getAux(this->arr, this->size, demo_val, key);
+}
+
+template<class T>
+output_t<const T &> Hash_Table<T>::getAux(hash_obj<T> *arr_, int arr_size, const T& demo_val, int key) {
+    int iteration = 0;
+    while(iteration<arr_size){
+        if(this->isEqual(arr_[hash(key, arr_size, iteration)].val, demo_val)){
+            return arr_[hash(key, arr_size, iteration)].val;
+        }
+        iteration++;
+    }
+    return StatusType::FAILURE;
 }
 
 
