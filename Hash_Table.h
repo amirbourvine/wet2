@@ -28,7 +28,6 @@ private:
 
     bool (*isEqual)(const T& t1, const T& t2);
 
-
     StatusType IncreaseSize();
     bool isPrime(int num);
     int nextPrime(int start);
@@ -49,7 +48,7 @@ template<class T>
 Hash_Table<T>::Hash_Table(bool (*isEqual)(const T& t1, const T& t2)) : size(INITIAL_SIZE), objNum(0), isEqual(isEqual){
     this->arr = new hash_obj<T>[INITIAL_SIZE];
     for(int i = 0; i<INITIAL_SIZE; i++){
-        this->arr[i] = NULL;
+        this->arr[i] = T{};
     }
 }
 
@@ -83,14 +82,14 @@ StatusType Hash_Table<T>::IncreaseSize() {
     int new_size = nextPrime((this->size)*2);
     hash_obj<T>* temp = new T[new_size];
     for(int i = 0; i<new_size; i++){
-        temp[i] = NULL;
+        temp[i] = T{};
     }
     hash_obj<T> obj;
     for(int i = 0; i<this->size; i++){
         obj.key = this->arr[i].key;
         obj.val = this->arr[i].val;
         InsertAux(temp, new_size, obj);
-        this->arr[i] = NULL;
+        this->arr[i] = T{};
     }
     delete[] this->arr;
     this->arr = temp;
@@ -111,7 +110,7 @@ StatusType Hash_Table<T>::InsertAux(hash_obj<T> *arr_, int arr_size, hash_obj<T>
     }
     int iteration = 0;
     while(iteration<arr_size){
-        if(arr_[hash(obj.key, arr_size, iteration)]==NULL){
+        if(arr_[hash(obj.key, arr_size, iteration)].val == T{}){
             arr_[hash(obj.key, arr_size, iteration)] = obj.val;//require copy c'tor on T
             return StatusType::SUCCESS;
         }

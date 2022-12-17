@@ -3,7 +3,7 @@
 //
 
 #include "Hash_Table.h"
-
+#include <iostream>
 bool isEmpty(const int& val){
     return val == NULL;
 }
@@ -13,5 +13,5 @@ bool isEqual(const int& t1, const int& t2){
 }
 
 int main(){
-    Hash_Table<int> hash(isEmpty, isEqual);
+
 }
