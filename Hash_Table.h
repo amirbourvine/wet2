@@ -34,13 +34,13 @@ private:
 
     int hash(int key, int size, int iteration);
     StatusType insertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj);
-    output_t<const T&> getAux(hash_obj<T> *arr, int arr_size, const T& demo_val, int key);
+    output_t<T> getAux(hash_obj<T> *arr, int arr_size, const T& demo_val, int key);
 
 public:
     explicit Hash_Table(bool (*isEqual)(const T& t1, const T& t2));
     ~Hash_Table();
     StatusType insert(int key, const T& val);
-    output_t<const T&> get(const T& demo_val, int key);
+    output_t<T> get(const T& demo_val, int key);
 
 
     //to-delete
@@ -52,7 +52,7 @@ Hash_Table<T>::Hash_Table(bool (*isEqual)(const T& t1, const T& t2)) : size(INIT
     this->arr = new hash_obj<T>[INITIAL_SIZE];
     hash_obj<T> obj;
     obj.val = T{};
-    obj.key = NULL;
+    obj.key = 0;
     for(int i = 0; i<INITIAL_SIZE; i++){
         this->arr[i] = obj;
     }
@@ -92,7 +92,7 @@ StatusType Hash_Table<T>::increaseSize() {
     }
     hash_obj<T> obj;
     obj.val = T{};
-    obj.key = NULL;
+    obj.key = 0;
     for(int i = 0; i<new_size; i++){
         temp[i] = obj;
     }
@@ -105,7 +105,7 @@ StatusType Hash_Table<T>::increaseSize() {
             return st;
         }
         obj.val = T{};
-        obj.key = NULL;
+        obj.key = 0;
         this->arr[i] = obj;
     }
     delete[] this->arr;
@@ -118,8 +118,19 @@ StatusType Hash_Table<T>::increaseSize() {
 template<class T>
 int Hash_Table<T>::hash(int key, int arr_size, int iteration) {
     int h = key % arr_size;
-    int r = 1 + (key%(arr_size-C));
-    return (h + iteration*r) % arr_size;
+    if(h<0){
+        h+=arr_size;
+    }
+    int temp = key%(arr_size-C);
+    if(temp<0){
+        temp+=(arr_size-C);
+    }
+    int r = 1 + temp;
+    temp = (h + iteration*r) % arr_size;
+    if(temp<0){
+        temp+=arr_size;
+    }
+    return temp;
 }
 
 template<class T>
@@ -147,6 +158,7 @@ StatusType Hash_Table<T>::insert(int key, const T &val) {
     StatusType st = insertAux(this->arr, this->size, obj);
     if(st != StatusType::SUCCESS)
         return st;
+
     this->objNum = this->objNum + 1;
     if(this->objNum == this->size){
         st = this->increaseSize();
@@ -157,7 +169,7 @@ StatusType Hash_Table<T>::insert(int key, const T &val) {
 }
 
 template<class T>
-output_t<const T &> Hash_Table<T>::get(const T& demo_val, int key) {
+output_t<T> Hash_Table<T>::get(const T& demo_val, int key) {
     if(this->arr==nullptr){
         return StatusType::FAILURE;
     }
@@ -165,11 +177,14 @@ output_t<const T &> Hash_Table<T>::get(const T& demo_val, int key) {
 }
 
 template<class T>
-output_t<const T &> Hash_Table<T>::getAux(hash_obj<T> *arr_, int arr_size, const T& demo_val, int key) {
+output_t<T> Hash_Table<T>::getAux(hash_obj<T> *arr_, int arr_size, const T& demo_val, int key) {
     int iteration = 0;
     while(iteration<arr_size){
         if(this->isEqual(arr_[hash(key, arr_size, iteration)].val, demo_val)){
             return arr_[hash(key, arr_size, iteration)].val;
+        }
+        if(arr_[hash(key, arr_size, iteration)].val == T{}){
+            return StatusType::FAILURE;
         }
         iteration++;
     }
