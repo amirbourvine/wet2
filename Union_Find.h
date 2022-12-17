@@ -1,11 +1,7 @@
-//
-// Created by Elad on 17/12/2022.
-//
-
 #ifndef DSH2_UNION_FIND_H
 #define DSH2_UNION_FIND_H
 
-#include "wet2util.h"
+#include "Team.h"
 
 #include <memory>
 #include <vector>
@@ -15,15 +11,14 @@ using namespace std;
 #define null (-1)
 
 typedef struct Node{
-    int val;
-    int set; int size;
+    shared_ptr<Player> player;
+    shared_ptr<Team> team;
 
     std::shared_ptr<Node> next = nullptr;
 
-    Node(int val = 0, int set = null){
-        this->val = val;
-        this->set = set;
-        size = 1;
+    Node(shared_ptr<Player> player = nullptr, shared_ptr<Team> team = nullptr){
+        this->player = player;
+        this->team = team;
     }
 } Node;
 
@@ -38,9 +33,9 @@ public:
     Union_Find(Union_Find&) = delete;
     void operator=(Union_Find&) = delete;
 
-    StatusType uniteSets(int set1, int set2);
-    StatusType makeSet(int val, int set);
-    StatusType find(int key);
+    StatusType uniteSets(int team1, int team2);
+    StatusType makeSet(const shared_ptr<Player>&, const shared_ptr<Team>&);
+    output_t<shared_ptr<Team>> find(int playerId);
 
     void print();
 };

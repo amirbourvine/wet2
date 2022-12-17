@@ -7,7 +7,7 @@ StatusType Union_Find::unite(shared_ptr<Node> set1, shared_ptr<Node> set2){
     //change to key1 and key2 and size comparison
     sets.erase(std::find(sets.begin(), sets.end(), set1));
 
-    set1->set = null;
+    set1->team = nullptr;
     set1->next = set2;
 
     return StatusType::SUCCESS;
@@ -19,7 +19,7 @@ StatusType Union_Find::uniteSets(int set1, int set2){
 
     shared_ptr<Node> set1ptr = nullptr;
     for(auto it : sets){
-        if(it->set == set1)
+        if(it->team->getTeamId() == set1)
             set1ptr = it;
     }
     if(set1ptr == nullptr)
@@ -27,7 +27,7 @@ StatusType Union_Find::uniteSets(int set1, int set2){
 
     shared_ptr<Node> set2ptr = nullptr;
     for(auto it : sets){
-        if(it->set == set2)
+        if(it->team->getTeamId() == set2)
             set2ptr = it;
     }
     if(set2ptr == nullptr)
@@ -38,18 +38,18 @@ StatusType Union_Find::uniteSets(int set1, int set2){
     return StatusType::SUCCESS;
 }
 
-StatusType Union_Find::makeSet(int val, int set){
-    for(auto it : sets){
-        if(it->set == set)
+StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_ptr<Team>& team){
+    for(auto it : nodes){
+        if(it->player == player)
             return StatusType::FAILURE;
     }
 
-    shared_ptr<Node> node(new Node(val, set));
+    shared_ptr<Node> node(new Node(player, team));
     nodes.push_back(node);
 
     shared_ptr<Node> occupiedSet = nullptr;
     for(auto it : sets){
-        if(it->set == set) {
+        if(it->team->getTeamId() == team->getTeamId()) {
             occupiedSet = it;
             break;
         }
@@ -62,7 +62,7 @@ StatusType Union_Find::makeSet(int val, int set){
     return StatusType::SUCCESS;
 }
 
-StatusType Union_Find::find(int key){
+output_t<shared_ptr<Team>> Union_Find::find(int playerId){
 
     return StatusType::SUCCESS;
 }
@@ -70,18 +70,18 @@ StatusType Union_Find::find(int key){
 void Union_Find::print(){
     cout << "sets:\t";
     for(auto it : sets)
-        cout << (*it).set << "\t";
+        cout << *((*it).team) << "\t";
     cout << "\n";
 
     for(int i = 0; i < nodes.size(); ++i){
         shared_ptr<Node> temp = nodes[i];
         while(temp->next != nullptr){
-            std::cout << temp->val << "\t->\t";
+            std::cout << *(temp->player) << "\t->\t";
             temp = temp->next;
         }
-        std::cout << temp->val << "\t->\t";
+        std::cout << *(temp->player) << "\t->\t";
 
-        std::cout << "set: " << temp->set << "\n";
+        std::cout << *(temp->team) << "\n";
     }
 }
 

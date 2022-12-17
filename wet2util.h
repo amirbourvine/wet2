@@ -16,6 +16,7 @@
 #define WET2_UTIL_H_
 
 #include <stdexcept>
+#include <iostream>
 
 // StatusType
 enum struct StatusType {
@@ -121,6 +122,12 @@ public:
 		}
 		return permutation_t(res);
 	}
+
+    friend std::ostream& operator<<(std::ostream& os, const permutation_t& p){
+        for(int i = 0; i < N; ++i)
+            os << "a(" << i << ") = " << p.a[i] << ", ";
+        return os;
+    }
 };
 
 #endif // WET2_UTIL_H_
