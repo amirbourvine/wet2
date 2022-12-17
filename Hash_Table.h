@@ -16,7 +16,7 @@ int C = 2;
 template <class T>//T-values
 struct hash_obj{
     int key;
-    const T& val;
+    T val;
 };
 
 template <class T>//T-values
@@ -28,27 +28,33 @@ private:
 
     bool (*isEqual)(const T& t1, const T& t2);
 
-    StatusType IncreaseSize();
+    StatusType increaseSize();
     bool isPrime(int num);
     int nextPrime(int start);
 
     int hash(int key, int size, int iteration);
-    StatusType InsertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj);
+    StatusType insertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj);
     output_t<const T&> getAux(hash_obj<T> *arr, int arr_size, const T& demo_val, int key);
 
-    void printHash();
 public:
     explicit Hash_Table(bool (*isEqual)(const T& t1, const T& t2));
     ~Hash_Table();
-    StatusType Insert(int key, const T& val);
+    StatusType insert(int key, const T& val);
     output_t<const T&> get(const T& demo_val, int key);
+
+
+    //to-delete
+    void printHash();
 };
 
 template<class T>
 Hash_Table<T>::Hash_Table(bool (*isEqual)(const T& t1, const T& t2)) : size(INITIAL_SIZE), objNum(0), isEqual(isEqual){
     this->arr = new hash_obj<T>[INITIAL_SIZE];
+    hash_obj<T> obj;
+    obj.val = T{};
+    obj.key = NULL;
     for(int i = 0; i<INITIAL_SIZE; i++){
-        this->arr[i] = T{};
+        this->arr[i] = obj;
     }
 }
 
@@ -78,22 +84,35 @@ int Hash_Table<T>::nextPrime(int start) {
 }
 
 template<class T>
-StatusType Hash_Table<T>::IncreaseSize() {
+StatusType Hash_Table<T>::increaseSize() {
     int new_size = nextPrime((this->size)*2);
-    hash_obj<T>* temp = new T[new_size];
-    for(int i = 0; i<new_size; i++){
-        temp[i] = T{};
+    hash_obj<T>* temp = new hash_obj<T>[new_size];
+    if(temp == nullptr){
+        return StatusType::ALLOCATION_ERROR;
     }
     hash_obj<T> obj;
+    obj.val = T{};
+    obj.key = NULL;
+    for(int i = 0; i<new_size; i++){
+        temp[i] = obj;
+    }
+    StatusType st;
     for(int i = 0; i<this->size; i++){
         obj.key = this->arr[i].key;
         obj.val = this->arr[i].val;
-        InsertAux(temp, new_size, obj);
-        this->arr[i] = T{};
+        st = insertAux(temp, new_size, obj);
+        if(st!=StatusType::SUCCESS){
+            return st;
+        }
+        obj.val = T{};
+        obj.key = NULL;
+        this->arr[i] = obj;
     }
     delete[] this->arr;
     this->arr = temp;
     this->size = new_size;
+
+    return StatusType::SUCCESS;
 }
 
 template<class T>
@@ -104,14 +123,14 @@ int Hash_Table<T>::hash(int key, int arr_size, int iteration) {
 }
 
 template<class T>
-StatusType Hash_Table<T>::InsertAux(hash_obj<T> *arr_, int arr_size, hash_obj<T> obj) {
+StatusType Hash_Table<T>::insertAux(hash_obj<T> *arr_, int arr_size, hash_obj<T> obj) {
     if(arr_==nullptr){
         return StatusType::INVALID_INPUT;
     }
     int iteration = 0;
     while(iteration<arr_size){
         if(arr_[hash(obj.key, arr_size, iteration)].val == T{}){
-            arr_[hash(obj.key, arr_size, iteration)] = obj.val;//require copy c'tor on T
+            arr_[hash(obj.key, arr_size, iteration)] = obj;//require copy c'tor on T
             return StatusType::SUCCESS;
         }
         iteration++;
@@ -120,17 +139,17 @@ StatusType Hash_Table<T>::InsertAux(hash_obj<T> *arr_, int arr_size, hash_obj<T>
 }
 
 template<class T>
-StatusType Hash_Table<T>::Insert(int key, const T &val) {
+StatusType Hash_Table<T>::insert(int key, const T &val) {
     hash_obj<T> obj;
     obj.key = key;
     obj.val = val;
 
-    StatusType st = InsertAux(this->arr, this->size, obj);
+    StatusType st = insertAux(this->arr, this->size, obj);
     if(st != StatusType::SUCCESS)
         return st;
     this->objNum = this->objNum + 1;
     if(this->objNum == this->size){
-        st = this->IncreaseSize();
+        st = this->increaseSize();
     }
     if(st != StatusType::SUCCESS)
         return st;
@@ -163,7 +182,7 @@ void Hash_Table<T>::printHash() {
     cout << "NUM_OBJ: " << this->objNum <<endl;
     cout << "ARR:" <<endl;
     for(int i = 0; i<this->size; i++){
-        cout<<this->arr[i];
+        cout<<this->arr[i].val<<",";
     }
     cout<<endl;
 }
