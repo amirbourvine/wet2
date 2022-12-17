@@ -26,7 +26,6 @@ private:
     int size;
     int objNum;
 
-    bool (*isEmpty)(const T& val);
     bool (*isEqual)(const T& t1, const T& t2);
 
 
@@ -40,14 +39,14 @@ private:
 
     void printHash();
 public:
-    explicit Hash_Table(bool (*isEmpty)(const T& val), bool (*isEqual)(const T& val));
+    explicit Hash_Table(bool (*isEqual)(const T& t1, const T& t2));
     ~Hash_Table();
     StatusType Insert(int key, const T& val);
     output_t<const T&> get(const T& demo_val, int key);
 };
 
 template<class T>
-Hash_Table<T>::Hash_Table(bool (*isEmpty)(const T &), bool (*isEqual)(const T& val)) : size(INITIAL_SIZE), objNum(0), isEmpty(isEmpty), isEqual(isEqual){
+Hash_Table<T>::Hash_Table(bool (*isEqual)(const T& t1, const T& t2)) : size(INITIAL_SIZE), objNum(0), isEqual(isEqual){
     this->arr = new hash_obj<T>[INITIAL_SIZE];
     for(int i = 0; i<INITIAL_SIZE; i++){
         this->arr[i] = NULL;
@@ -112,7 +111,7 @@ StatusType Hash_Table<T>::InsertAux(hash_obj<T> *arr_, int arr_size, hash_obj<T>
     }
     int iteration = 0;
     while(iteration<arr_size){
-        if(this->isEmpty(arr_[hash(obj.key, arr_size, iteration)])){
+        if(arr_[hash(obj.key, arr_size, iteration)]==NULL){
             arr_[hash(obj.key, arr_size, iteration)] = obj.val;//require copy c'tor on T
             return StatusType::SUCCESS;
         }
