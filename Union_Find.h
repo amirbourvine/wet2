@@ -8,24 +8,28 @@
 
 using namespace std;
 
-#define null (-1)
-
 typedef struct Node{
     shared_ptr<Player> player;
     shared_ptr<Team> team;
 
-    std::shared_ptr<Node> next = nullptr;
+    int valgames;
 
-    Node(shared_ptr<Player> player = nullptr, shared_ptr<Team> team = nullptr){
+    std::shared_ptr<Node> next;
+
+    Node(shared_ptr<Player> player, shared_ptr<Team> team, int gamesPlayed = 0){
         this->player = player;
         this->team = team;
+        this->valgames = gamesPlayed - team->getGamesPlayedAsTeam();
+        next = nullptr;
     }
 } Node;
 
 class Union_Find {
     vector<shared_ptr<Node>> nodes;
     vector<shared_ptr<Node>> sets;
-    StatusType unite(shared_ptr<Node> set1, shared_ptr<Node> set2);
+
+    StatusType unite(const shared_ptr<Node>& set1, const shared_ptr<Node>& set2);
+    shared_ptr<Team> findaux(shared_ptr<Node>& start);
 
 public:
     Union_Find() = default;
@@ -34,8 +38,10 @@ public:
     void operator=(Union_Find&) = delete;
 
     StatusType uniteSets(int team1, int team2);
-    StatusType makeSet(const shared_ptr<Player>&, const shared_ptr<Team>&);
+    StatusType makeSet(const shared_ptr<Player>&, const shared_ptr<Team>&, int gamesPlayed = 0);
     output_t<shared_ptr<Team>> find(int playerId);
+
+    output_t<int> calcGamesPlayed(int playerId);
 
     void print();
 };
