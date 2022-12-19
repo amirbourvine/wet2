@@ -76,8 +76,8 @@ bool Team::isActive() const{
     return active;
 }
 
-void Team::setActive(bool active_){
-    this->active = active_;
+void Team::setNotActive(){
+    this->active = false;
 }
 
 permutation_t Team::getSpirit() const{

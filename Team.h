@@ -45,7 +45,7 @@ public:
     int getAbility() const;
     void incAbility(int playerAbility);
     bool isActive() const;
-    void setActive(bool active);
+    void setNotActive();
     permutation_t getSpirit() const;
     void addToSpirit(permutation_t permutation);
 

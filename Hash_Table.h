@@ -11,8 +11,8 @@
 
 using namespace std;
 
-int INITIAL_SIZE = 7;
-int C = 2;
+const static int INITIAL_SIZE = 7;
+const static int C = 2;
 
 template <class T>//T-values
 struct hash_obj{
@@ -46,7 +46,8 @@ public:
 
     //to-delete
     void printHash();
-    unique_ptr<T> returnNarrowedArray();
+    T* returnNarrowedArray();
+    int getObjNum() const;
 };
 
 template<class T>
@@ -204,8 +205,8 @@ void Hash_Table<T>::printHash() {
     cout<<endl;
 }
 template<class T>
-unique_ptr<T> Hash_Table<T>::returnNarrowedArray(){
-    unique_ptr<T> output(new T[this->objNum]);
+T* Hash_Table<T>::returnNarrowedArray(){
+    T* output(new T[this->objNum]);
     int count = 0;
     for(int i = 0; i < this->size; i++) {
         if(this->arr[i].val != T{}) {
@@ -215,6 +216,11 @@ unique_ptr<T> Hash_Table<T>::returnNarrowedArray(){
     }
 
     return output;
+}
+
+template<class T>
+int Hash_Table<T>::getObjNum() const{
+    return objNum;
 }
 
 
