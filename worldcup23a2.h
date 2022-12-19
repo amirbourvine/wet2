@@ -16,6 +16,10 @@
 #define WORLDCUP23A2_H_
 
 #include "wet2util.h"
+#include "Team.h"
+#include "Player.h"
+#include "Union_Find.h"
+
 
 class world_cup_t {
 private:
