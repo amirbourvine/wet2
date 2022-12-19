@@ -30,6 +30,8 @@ public:
     RankNode<T>& operator=(const RankNode<T>& other) = delete;
     virtual ~RankNode() = default;
 
+    output_t<int> rank(const T &value);
+    output_t<int> rankaux(RankNode<T>* root, const T &value);
 };
 
 template<class T>
@@ -127,6 +129,36 @@ template<class T>
 void RankNode<T>::updateDuringRemove(RankNode<T> *node) {
     AVLNode<T>::updateDuringRemove(node);
     updateVal(node);
+}
+
+template<class T>
+output_t<int> RankNode<T>::rankaux(RankNode<T>* root, const T &value) {
+    if(root == nullptr){
+        return StatusType::FAILURE;
+    }
+    if(root->isEmpty){
+        return StatusType::FAILURE;
+    }
+    if(this->isEqual(value, root->key)){
+        if(root->left == nullptr)
+            return 1;
+        else
+            return 1 + root->left->val;
+    }
+    if(this->isLarger(root->key,value)){
+        return rankaux(value, root->left);
+    }
+    else{
+        if(root->left == nullptr)
+            return rankaux(value, root->right) + 1;
+        else
+            return rankaux(value, root->right) + 1 + root->left->val;
+    }
+}
+
+template<class T>
+output_t<int> RankNode<T>::rank(const T &value) {
+    return rankaux(this, value);
 }
 
 
