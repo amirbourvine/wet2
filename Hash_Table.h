@@ -7,6 +7,7 @@
 
 #include "wet2util.h"
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -204,11 +205,13 @@ void Hash_Table<T>::printHash() {
 }
 template<class T>
 unique_ptr<T> Hash_Table<T>::returnNarrowedArray(){
-    unique_ptr<T> output(new T[objNum]);
+    unique_ptr<T> output(new T[this->objNum]);
     int count = 0;
-    for(int i = 0; i < size; i++) {
-        if(arr[i].key != 0)
-            output[count] = arr[i].val;
+    for(int i = 0; i < this->size; i++) {
+        if(this->arr[i].val != T{}) {
+            output[count] = this->arr[i].val;
+            count++;
+        }
     }
 
     return output;
