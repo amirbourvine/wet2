@@ -43,16 +43,6 @@ RankNode<T>::RankNode(const T &key, bool (*isLarger)(const T &, const T &), bool
 }
 
 template<class T>
-output_t<RankNode<T> *> RankNode<T>::LLRotation(RankNode<T> *root) {
-    output_t<AVLNode<T> *> out = AVLNode<T>::LLRotation(root);
-    if(out.status()!=StatusType::SUCCESS){
-        return out.status();
-    }
-    updateVal(root->left);
-    updateVal(root);
-}
-
-template<class T>
 void RankNode<T>::updateVal(RankNode<T> *root) {
     if(root== nullptr){
         return;
@@ -72,6 +62,54 @@ void RankNode<T>::updateVal(RankNode<T> *root) {
     if(left != nullptr && right == nullptr){
         root->val = 1 + right->val;
     }
+}
+
+
+template<class T>
+output_t<RankNode<T> *> RankNode<T>::LLRotation(RankNode<T> *root) {
+    output_t<AVLNode<T> *> out = AVLNode<T>::LLRotation(root);
+    if(out.status()!=StatusType::SUCCESS){
+        return out.status();
+    }
+    updateVal(out.ans()->right);
+    updateVal(out.ans());
+    return out.ans();
+}
+
+
+template<class T>
+output_t<RankNode<T> *> RankNode<T>::RRRotation(RankNode<T> *root) {
+    output_t<AVLNode<T> *> out = AVLNode<T>::RRRotation(root);
+    if(out.status()!=StatusType::SUCCESS){
+        return out.status();
+    }
+    updateVal(out.ans()->left);
+    updateVal(out.ans());
+    return out.ans();
+}
+
+template<class T>
+output_t<RankNode<T> *> RankNode<T>::LRRotation(RankNode<T> *root) {
+    output_t<AVLNode<T> *> out = AVLNode<T>::LRRotation(root);
+    if(out.status()!=StatusType::SUCCESS){
+        return out.status();
+    }
+    updateVal(out.ans()->left);
+    updateVal(out.ans()->right);
+    updateVal(out.ans());
+    return out.ans();
+}
+
+template<class T>
+output_t<RankNode<T> *> RankNode<T>::RLRotation(RankNode<T> *root) {
+    output_t<AVLNode<T> *> out = AVLNode<T>::RLRotation(root);
+    if(out.status()!=StatusType::SUCCESS){
+        return out.status();
+    }
+    updateVal(out.ans()->left);
+    updateVal(out.ans()->right);
+    updateVal(out.ans());
+    return out.ans();
 }
 
 
