@@ -16,7 +16,7 @@ using namespace std;
 
 template <class T>
 class AVLNode{
-private:
+protected:
     T key;
     AVLNode<T>* left;
     AVLNode<T>* right;
@@ -35,10 +35,10 @@ private:
     AVLNode<T>* removeLeftChild(AVLNode<T>* node);//return the bottom of the route
     AVLNode<T>* removeTwoChildren(AVLNode<T>* node);//return the bottom of the route
 
-    output_t<AVLNode<T>*> LLRotation(AVLNode<T>* root);
-    output_t<AVLNode<T>*> RRRotation(AVLNode<T>* root);
-    output_t<AVLNode<T>*> LRRotation(AVLNode<T>* root);
-    output_t<AVLNode<T>*> RLRotation(AVLNode<T>* root);
+    virtual output_t<AVLNode<T>*> LLRotation(AVLNode<T>* root);
+    virtual output_t<AVLNode<T>*> RRRotation(AVLNode<T>* root);
+    virtual output_t<AVLNode<T>*> LRRotation(AVLNode<T>* root);
+    virtual output_t<AVLNode<T>*> RLRotation(AVLNode<T>* root);
 
     void mergeArrays(shared_ptr<T> *arr1, shared_ptr<T> *arr2, shared_ptr<T> *arr3, int size1, int size2);
     void transferInfo(AVLNode<T>* from, AVLNode<T>* to);
@@ -53,15 +53,15 @@ public:
     explicit AVLNode(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2));
     AVLNode(const AVLNode<T>& other) = delete;
     AVLNode<T>& operator=(const AVLNode<T>& other) = delete;
-    ~AVLNode();
+    virtual ~AVLNode();
 
     output_t<bool> isLeaf();
     output_t<T*> getKey();
     output_t<int> getBF();
     output_t<AVLNode<T>*> find(const T& val);
 
-    output_t<AVLNode<T>*> insert(const T& val);
-    output_t<AVLNode<T>*> remove(const T& val);
+    virtual output_t<AVLNode<T>*> insert(const T& val);
+    virtual output_t<AVLNode<T>*> remove(const T& val);
     void inorder(AVLNode<T>* root, void (*pFunction)(T& t));
     template <class S>
     void inorder(AVLNode<T>* root, void (*pFunction)(T& t, S& s), S& s);
@@ -350,6 +350,7 @@ output_t<AVLNode<T>*> AVLNode<T>::insert(const T& val) {
     if(temp.status()==StatusType::FAILURE){
         return StatusType::FAILURE;
     }
+
     AVLNode<T>* node = temp.ans();
     node->h = 0;
     AVLNode<T>* p;
