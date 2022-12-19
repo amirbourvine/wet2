@@ -2,9 +2,9 @@
 #define DSH2_UNION_FIND_H
 
 #include "Team.h"
+#include "Hash_Table.h"
 
 #include <memory>
-#include <vector>
 
 using namespace std;
 
@@ -29,14 +29,14 @@ typedef struct Node{
 } Node;
 
 class Union_Find {
-    vector<shared_ptr<Node>> nodes;
-    vector<shared_ptr<Node>> sets;
+    Hash_Table<shared_ptr<Node>> nodes;
+    Hash_Table<shared_ptr<Node>> sets;
 
     StatusType unite(const shared_ptr<Node>& set1, const shared_ptr<Node>& set2);
     shared_ptr<Team> findaux(shared_ptr<Node>& start);
 
 public:
-    Union_Find() = default;
+    Union_Find();
     ~Union_Find() = default;
     Union_Find(Union_Find&) = delete;
     void operator=(Union_Find&) = delete;

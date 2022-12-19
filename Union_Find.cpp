@@ -4,6 +4,25 @@
 
 #include "Union_Find.h"
 
+using namespace std;
+
+bool arePlayersEqual(const shared_ptr<Node>& p1, const shared_ptr<Node>& p2){
+    if(p1 == nullptr || p2 == nullptr)
+        return false;
+    return p1->player->getPlayerId() == p2->player->getPlayerId();
+}
+bool areTeamsEqual(const shared_ptr<Node>& t1, const shared_ptr<Node>& t2){
+    if(t1 == nullptr|| t2 == nullptr)
+        return false;
+
+    return t1->team->getTeamId() == t2->team->getTeamId() &&
+        t1->team->isActive() && t2->team->isActive();
+}
+Union_Find::Union_Find():
+    nodes(Hash_Table<shared_ptr<Node>>(arePlayersEqual)),
+    sets(Hash_Table<shared_ptr<Node>>(areTeamsEqual))
+{}
+
 StatusType Union_Find::unite(const shared_ptr<Node>& fromSet, const shared_ptr<Node>& toSet){
     if(fromSet->team == nullptr || toSet->team == nullptr)
         return StatusType::FAILURE;
@@ -23,7 +42,7 @@ StatusType Union_Find::unite(const shared_ptr<Node>& fromSet, const shared_ptr<N
                 toSet->team->getSpirit() * fromSet->permutationTrack;
 
         //Fix sets
-        sets.erase(std::find(sets.begin(), sets.end(), fromSet));
+        fromSet->team->setNotActive();
         fromSet->team = nullptr;
         fromSet->next = toSet;
 
@@ -40,7 +59,7 @@ StatusType Union_Find::unite(const shared_ptr<Node>& fromSet, const shared_ptr<N
     toSet->permutationTrack = fromSet->permutationTrack.inv() * toSet->permutationTrack;
 
     //Fix sets
-    sets.erase(std::find(sets.begin(), sets.end(), toSet));
+    toSet->team->setNotActive();
     fromSet->team = toSet->team;
     toSet->team = nullptr;
     toSet->next = fromSet;
@@ -48,54 +67,64 @@ StatusType Union_Find::unite(const shared_ptr<Node>& fromSet, const shared_ptr<N
     return StatusType::SUCCESS;
 }
 
-StatusType Union_Find::uniteSets(int set1, int set2){
-    if(set1 == set2)
+StatusType Union_Find::uniteSets(int teamId1, int teamId2){
+    if(teamId1 == teamId2)
         return StatusType::FAILURE;
 
-    shared_ptr<Node> set1ptr = nullptr;
-    for(auto it : sets){
-        if(it->team->getTeamId() == set1)
-            set1ptr = it;
-    }
-    if(set1ptr == nullptr)
-        return StatusType::FAILURE;
+    shared_ptr<Node> demoTeam(new Node(
+            make_shared<Player>(-1),
+                    make_shared<Team>(teamId1)));
 
-    shared_ptr<Node> set2ptr = nullptr;
-    for(auto it : sets){
-        if(it->team->getTeamId() == set2)
-            set2ptr = it;
-    }
-    if(set2ptr == nullptr)
-        return StatusType::FAILURE;
+    output_t<shared_ptr<Node>> out1 = sets.get(demoTeam, teamId1);
+    if(out1.status() != StatusType::SUCCESS)
+        return out1.status();
+    shared_ptr<Node> set1 = out1.ans();
 
-    unite(set1ptr, set2ptr);
+    demoTeam = make_shared<Node>(
+            make_shared<Player>(-1),
+            make_shared<Team>(teamId2));
+
+    output_t<shared_ptr<Node>> out2 = sets.get(demoTeam, teamId2);
+    if(out2.status() != StatusType::SUCCESS)
+        return out2.status();
+    shared_ptr<Node> set2 = out2.ans();
+
+    unite(set1, set2);
 
     return StatusType::SUCCESS;
 }
 
 StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_ptr<Team>& team, int gamesPlayed){
-    for(auto it : nodes){
-        if(it->player == player)
-            return StatusType::FAILURE;
-    }
+    shared_ptr<Node> demoPlayer = make_shared<Node>(
+            player,
+            make_shared<Team>(INVALID_TEAM_ID));
+    if(nodes.get(demoPlayer, player->getPlayerId()).status() == StatusType::SUCCESS)
+        return StatusType::FAILURE;
 
     shared_ptr<Node> node(new Node(player, team, player->getSpirit(), gamesPlayed));
-    nodes.push_back(node);
+    nodes.insert(player->getPlayerId(), node);
 
     shared_ptr<Node> occupiedSet = nullptr;
-    for(auto it : sets){
-        if(it->team->getTeamId() == team->getTeamId()) {
-            occupiedSet = it;
-            break;
-        }
+
+    shared_ptr<Node> demoTeam(new Node(
+            make_shared<Player>(-1),
+            team));
+
+    output_t<shared_ptr<Node>> out = sets.get(demoTeam, team->getTeamId());
+    if(out.status() == StatusType::SUCCESS) {
+        occupiedSet = out.ans();
+        //This line is ment to prevent from regarding the temporary new set
+        // as the same team it's being united into
+        node->team = std::make_shared<Team>(INVALID_TEAM_ID);
     }
 
-    sets.push_back(node);
     if(occupiedSet != nullptr) {
         node->valgames += node->team->getGamesPlayedAsTeam();
-        node->team = std::make_shared<Team>(INVALID_TEAM_ID);
         if(unite(node, occupiedSet) != StatusType::SUCCESS)
             return unite(node, occupiedSet);
+    }
+    else{
+        sets.insert(node->team->getTeamId(), node);
     }
 
     return StatusType::SUCCESS;
@@ -137,26 +166,28 @@ shared_ptr<Team> Union_Find::findaux(shared_ptr<Node>& start){
 }
 output_t<shared_ptr<Team>> Union_Find::find(int playerId){
     //Find player in array
-    shared_ptr<Node> player = nullptr;
-    for(auto it : nodes){
-        if(it->player->getPlayerId() == playerId)
-            player = it;
-    }
-    if(player == nullptr)
-        return StatusType::FAILURE;
+    shared_ptr<Node> demoPlayer = make_shared<Node>(
+            make_shared<Player>(playerId),
+            make_shared<Team>(INVALID_TEAM_ID));
+
+    output_t<shared_ptr<Node>> out1 = nodes.get(demoPlayer, playerId);
+    if(out1.status() != StatusType::SUCCESS)
+        return out1.status();
+    shared_ptr<Node> player = out1.ans();
 
     return findaux(player);
 }
 
 output_t<int> Union_Find::calcGamesPlayed(int playerId){
     //Find player in array
-    shared_ptr<Node> player = nullptr;
-    for(auto it : nodes){
-        if(it->player->getPlayerId() == playerId)
-            player = it;
-    }
-    if(player == nullptr)
-        return StatusType::FAILURE;
+    shared_ptr<Node> demoPlayer = make_shared<Node>(
+            make_shared<Player>(playerId),
+            make_shared<Team>(INVALID_TEAM_ID));
+
+    output_t<shared_ptr<Node>> out1 = nodes.get(demoPlayer, playerId);
+    if(out1.status() != StatusType::SUCCESS)
+        return out1.status();
+    shared_ptr<Node> player = out1.ans();
 
     //Calc games played
     int gamesPlayed = 0;
@@ -173,13 +204,14 @@ output_t<int> Union_Find::calcGamesPlayed(int playerId){
 
 output_t<permutation_t> Union_Find::calcPartialPermutation(int playerId){
     //Find player in array
-    shared_ptr<Node> player = nullptr;
-    for(auto it : nodes){
-        if(it->player->getPlayerId() == playerId)
-            player = it;
-    }
-    if(player == nullptr)
-        return StatusType::FAILURE;
+    shared_ptr<Node> demoPlayer = make_shared<Node>(
+            make_shared<Player>(playerId),
+            make_shared<Team>(INVALID_TEAM_ID));
+
+    output_t<shared_ptr<Node>> out1 = nodes.get(demoPlayer, playerId);
+    if(out1.status() != StatusType::SUCCESS)
+        return out1.status();
+    shared_ptr<Node> player = out1.ans();
 
     //Calc partial permutation
     permutation_t partialPermutation = permutation_t::neutral();
@@ -195,17 +227,20 @@ output_t<permutation_t> Union_Find::calcPartialPermutation(int playerId){
 }
 
 void Union_Find::print(){
-    cout << "sets:\t";
-    for(auto it : sets)
-        cout << *((*it).team) << "\t";
+    shared_ptr<Node>* setsArr(sets.returnNarrowedArray());
+    for(int i = 0; i < sets.getObjNum(); ++i) {
+        if(setsArr[i]->team != nullptr)
+            cout << *(setsArr[i]->team) << "\t";
+    }
     cout << "\n";
 
-    for(int i = 0; i < nodes.size(); ++i){
-        shared_ptr<Node> temp = nodes[i];
+    shared_ptr<Node>* nodesArr(nodes.returnNarrowedArray());
+    for(int i = 0; i < nodes.getObjNum(); ++i){
+        shared_ptr<Node> temp = nodesArr[i];
         while(temp->next != nullptr){
             std::cout << *(temp->player) << "\t->\t";
-            /*std::cout << *(temp->player) << ", valgames: " << temp->valgames
-                << ", permutation: " << temp->permutationTrack << "\t->\t";*/
+            //std::cout << *(temp->player) << ", valgames: " << temp->valgames
+            //  << ", permutation: " << temp->permutationTrack << "\t->\t";
             temp = temp->next;
         }
         std::cout << *(temp->player) << "\t->\t";
@@ -214,6 +249,9 @@ void Union_Find::print(){
 
         std::cout << *(temp->team) << "\n";
     }
+
+    delete[] nodesArr;
+    delete[] setsArr;
 }
 
 
