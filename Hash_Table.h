@@ -45,6 +45,7 @@ public:
 
     //to-delete
     void printHash();
+    unique_ptr<T> returnNarrowedArray();
 };
 
 template<class T>
@@ -200,6 +201,17 @@ void Hash_Table<T>::printHash() {
         cout<<this->arr[i].val<<",";
     }
     cout<<endl;
+}
+template<class T>
+unique_ptr<T> Hash_Table<T>::returnNarrowedArray(){
+    unique_ptr<T> output(new T[objNum]);
+    int count = 0;
+    for(int i = 0; i < size; i++) {
+        if(arr[i].key != 0)
+            output[count] = arr[i].val;
+    }
+
+    return output;
 }
 
 
