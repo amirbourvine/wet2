@@ -20,7 +20,8 @@ private:
     output_t<RankNode<T>*> LRRotation(RankNode<T>* root) override;
     output_t<RankNode<T>*> RLRotation(RankNode<T>* root) override;
 
-
+    RankNode<T>* makeNode(const T& val) override;
+    void updateDuringInsert(RankNode<T>* node, RankNode<T>* p) override;
 public:
     RankNode(bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& pt1, const T& pt2));
     explicit RankNode(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2));
@@ -110,6 +111,17 @@ output_t<RankNode<T> *> RankNode<T>::RLRotation(RankNode<T> *root) {
     updateVal(out.ans()->right);
     updateVal(out.ans());
     return out.ans();
+}
+
+template<class T>
+RankNode<T> *RankNode<T>::makeNode(const T &value) {
+    return (new RankNode<T>(value, this->isLarger, this->isEqual));
+}
+
+template<class T>
+void RankNode<T>::updateDuringInsert(RankNode<T> *node, RankNode<T> *p) {
+    AVLNode<T>::updateDuringInsert(node, p);
+    updateVal(p);
 }
 
 

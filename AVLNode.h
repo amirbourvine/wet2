@@ -26,9 +26,11 @@ protected:
     bool (*isLarger)(const T& t1, const T& t2);//true if t1>t2
     bool (*isEqual)(const T& t1, const T& t2);//true if t1==t2
 
-    output_t<AVLNode<T>*> insertaux(const T& val, AVLNode<T>* root);
+    output_t<AVLNode<T>*> insertaux(AVLNode<T>* to_insert, AVLNode<T> *root);
     output_t<AVLNode<T>*> findaux(const T& val, AVLNode<T>* root);
     void updateH(AVLNode<T>* root, AVLNode<T>* left, AVLNode<T>* right);
+    virtual void updateDuringInsert(AVLNode<T>* node, AVLNode<T>* p);
+    virtual AVLNode<T>* makeNode(const T& val);
 
     AVLNode<T>* removeLeaf(AVLNode<T>* node);//return the bottom of the route
     AVLNode<T>* removeRightChild(AVLNode<T>* node);//return the bottom of the route
@@ -60,7 +62,7 @@ public:
     output_t<int> getBF();
     output_t<AVLNode<T>*> find(const T& val);
 
-    virtual output_t<AVLNode<T>*> insert(const T& val);
+    output_t<AVLNode<T>*> insert(const T& val);
     virtual output_t<AVLNode<T>*> remove(const T& val);
     void inorder(AVLNode<T>* root, void (*pFunction)(T& t));
     template <class S>
@@ -339,6 +341,16 @@ output_t<AVLNode<T> *> AVLNode<T>::RLRotation(AVLNode<T> *root) {
 }
 
 template<class T>
+void AVLNode<T>::updateDuringInsert(AVLNode<T>* node, AVLNode<T>* p){
+    p->h = node->h+1;
+}
+
+template<class T>
+AVLNode<T>* AVLNode<T>::makeNode(const T& val) {
+    return (new AVLNode<T>(val, this->isLarger, this->isEqual));
+}
+
+template<class T>
 output_t<AVLNode<T>*> AVLNode<T>::insert(const T& val) {
     if(this->isEmpty){//case of empty tree
         this->key = val;
@@ -346,13 +358,15 @@ output_t<AVLNode<T>*> AVLNode<T>::insert(const T& val) {
         return this;
     }
 
-    output_t<AVLNode<T>*> temp = insertaux(val, this);
+    AVLNode<T>* to_insert = makeNode(val);
+    output_t<AVLNode<T>*> temp = insertaux(to_insert, this);
     if(temp.status()==StatusType::FAILURE){
+        delete to_insert;
         return StatusType::FAILURE;
     }
 
     AVLNode<T>* node = temp.ans();
-    node->h = 0;
+
     AVLNode<T>* p;
     AVLNode<T>* q;
     while(node!= nullptr && node!=this){
@@ -361,7 +375,7 @@ output_t<AVLNode<T>*> AVLNode<T>::insert(const T& val) {
         if(p->h >= node->h+1){
             return this;
         }
-        p->h = node->h+1;
+        updateDuringInsert(node, p);
         if(abs(p->getBF().ans())==2){
             if(p->getBF().ans()==2) {
                 if (p->left->getBF().ans() == -1) {
@@ -404,34 +418,34 @@ output_t<AVLNode<T>*> AVLNode<T>::insert(const T& val) {
 }
 
 template<class T>
-output_t<AVLNode<T>*> AVLNode<T>::insertaux(const T& val, AVLNode<T> *root) {
+output_t<AVLNode<T>*> AVLNode<T>::insertaux(AVLNode<T>* to_insert, AVLNode<T> *root) {
     if(root == nullptr){
         return StatusType::FAILURE;
     }
     if(root->isEmpty){
         return StatusType::FAILURE;
     }
-    if(this->isEqual(val, root->key)){
+    if(this->isEqual(to_insert->key, root->key)){
         return StatusType::FAILURE;//no equal values in the tree
     }
-    if(this->isLarger(root->key,val)){
+    if(this->isLarger(root->key,to_insert->key)){
         if(root->left == nullptr){
-             root->left = new AVLNode<T>(val, this->isLarger, this->isEqual);
+             root->left = to_insert;
              root->left->up = root;
              return root->left;
         }
         else{
-            return insertaux(val, root->left);
+            return insertaux(to_insert, root->left);
         }
     }
     else{
         if(root->right == nullptr){
-            root->right = new AVLNode<T>(val, this->isLarger, this->isEqual);
+            root->right = to_insert;
             root->right->up = root;
             return root->right;
         }
         else{
-            return insertaux(val, root->right);
+            return insertaux(to_insert, root->right);
         }
     }
 }
