@@ -12,22 +12,12 @@ bool isEqual(const int& t1, const int& t2){
 
 int main(){
     Hash_Table<int> hash(isEqual);
-    hash.insert(15, 5);
-    hash.printHash();
-    hash.insert(14, 3);
-    hash.printHash();
-    hash.insert(7, 1);
-    hash.printHash();
-    hash.insert(-3, 9);
-    hash.printHash();
-    hash.insert(2, -4);
-    hash.printHash();
-    hash.insert(5, -7);
-    hash.printHash();
-    hash.insert(6, -1);
-    hash.printHash();
-    if(hash.get(-4,19).status()==StatusType::SUCCESS){
-        cout<<"SUCCESS: " << hash.get(-4,19).ans()<<endl;
+    for(int i = 0; i<37; i++){
+        hash.insert(5, 2);
+        hash.printHash();
+    }
+    if(hash.get(37,5).status()==StatusType::SUCCESS){
+        cout<<"SUCCESS: " << hash.get(37,5).ans()<<endl;
     }
     else{
         cout<<"FAILURE"<<endl;

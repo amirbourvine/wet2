@@ -34,24 +34,24 @@ int Team::getPoints() const {
     return points;
 }
 
-void Team::addPoints(int points){
-    this->points += points;
+void Team::addPoints(int points_){
+    this->points += points_;
 }
 
 int Team::getGoalKeepersAmount() const{
     return goalKeepersAmount;
 }
 
-void Team::setGoalKeepersAmount(int goalKeepersAmount){
-    this->goalKeepersAmount = goalKeepersAmount;
+void Team::setGoalKeepersAmount(int goalKeepersAmount_){
+    this->goalKeepersAmount = goalKeepersAmount_;
 }
 
 int Team::getGamesPlayedAsTeam() const {
     return gamesPlayedAsTeam;
 }
 
-void Team::setGamesPlayedAsTeam(int gamesPlayedAsTeam) {
-    Team::gamesPlayedAsTeam = gamesPlayedAsTeam;
+void Team::setGamesPlayedAsTeam(int gamesPlayedAsTeam_) {
+    Team::gamesPlayedAsTeam = gamesPlayedAsTeam_;
 }
 
 int Team::getPlayersCount() const {
@@ -76,8 +76,8 @@ bool Team::isActive() const{
     return active;
 }
 
-void Team::setActive(bool active){
-    this->active = active;
+void Team::setActive(bool active_){
+    this->active = active_;
 }
 
 permutation_t Team::getSpirit() const{
