@@ -189,7 +189,7 @@ output_t<permutation_t> Union_Find::calcPartialPermutation(int playerId){
         node = node->next;
     }
 
-    //findaux(player);
+    findaux(player);
 
     return partialPermutation;
 }
@@ -203,12 +203,14 @@ void Union_Find::print(){
     for(int i = 0; i < nodes.size(); ++i){
         shared_ptr<Node> temp = nodes[i];
         while(temp->next != nullptr){
-            std::cout << *(temp->player) << ", valgames: " << temp->valgames
-                << ", permutation: " << temp->permutationTrack << "\t->\t";
+            std::cout << *(temp->player) << "\t->\t";
+            /*std::cout << *(temp->player) << ", valgames: " << temp->valgames
+                << ", permutation: " << temp->permutationTrack << "\t->\t";*/
             temp = temp->next;
         }
-        std::cout << *(temp->player) << ", valgames: " << temp->valgames
-        << ", permutation: " << temp->permutationTrack << "\t->\t";
+        std::cout << *(temp->player) << "\t->\t";
+        //std::cout << *(temp->player) << ", valgames: " << temp->valgames
+        //<< ", permutation: " << temp->permutationTrack << "\t->\t";
 
         std::cout << *(temp->team) << "\n";
     }
