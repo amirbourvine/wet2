@@ -14,12 +14,16 @@ typedef struct Node{
 
     int valgames;
 
+    permutation_t permutationTrack;
+
     std::shared_ptr<Node> next;
 
-    Node(shared_ptr<Player> player, shared_ptr<Team> team, int gamesPlayed = 0){
+    Node(shared_ptr<Player> player, shared_ptr<Team> team,
+         const permutation_t& permutationTrack = permutation_t::neutral(), int gamesPlayed = 0){
         this->player = player;
         this->team = team;
         this->valgames = gamesPlayed - team->getGamesPlayedAsTeam();
+        this->permutationTrack = permutationTrack;
         next = nullptr;
     }
 } Node;
@@ -42,6 +46,7 @@ public:
     output_t<shared_ptr<Team>> find(int playerId);
 
     output_t<int> calcGamesPlayed(int playerId);
+    output_t<permutation_t> calcPartialPermutation(int playerId);
 
     void print();
 };
