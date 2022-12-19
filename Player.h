@@ -17,7 +17,7 @@ using namespace std;
 class Player {
 private:
     int playerId;
-    const permutation_t spirit;
+    permutation_t spirit;
     int ability;
     int cards;
     bool goalKeeper;
@@ -26,7 +26,7 @@ public:
     explicit Player(int playerId);
     explicit Player(int playerId, permutation_t spirit, int ability, int cards, bool goalKeeper);
     Player(Player& other) = default;
-    Player& operator=(const Player& other) = default;
+    Player& operator=(const Player& other);
     ~Player() = default;
 
     friend std::ostream& operator<<(std::ostream&, const Player&);

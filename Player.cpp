@@ -27,8 +27,8 @@ bool Player::isGoalKeeper() const {
     return goalKeeper;
 }
 
-void Player::setCards(int cards) {
-    Player::cards = cards;
+void Player::setCards(int cards_) {
+    Player::cards = cards_;
 }
 
 const permutation_t Player::getSpirit() const{
@@ -37,6 +37,14 @@ const permutation_t Player::getSpirit() const{
 
 int Player::getAbility() const{
     return ability;
+}
+
+Player& Player::operator=(const Player& other){
+    this->playerId = other.playerId;
+    this->ability = other.ability;
+    this->cards = other.cards;
+    this->goalKeeper = other.goalKeeper;
+    this->spirit = other.spirit;
 }
 
 std::ostream& operator<<(std::ostream& os, const Player& p){
