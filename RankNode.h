@@ -22,6 +22,7 @@ private:
 
     RankNode<T>* makeNode(const T& val) override;
     void updateDuringInsert(RankNode<T>* node, RankNode<T>* p) override;
+    void updateDuringRemove(RankNode<T>* node) override;
 public:
     RankNode(bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& pt1, const T& pt2));
     explicit RankNode(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2));
@@ -29,8 +30,6 @@ public:
     RankNode<T>& operator=(const RankNode<T>& other) = delete;
     virtual ~RankNode() = default;
 
-    output_t<RankNode<T>*> insert(const T& val) override;
-    output_t<RankNode<T>*> remove(const T& val) override;
 };
 
 template<class T>
@@ -122,6 +121,12 @@ template<class T>
 void RankNode<T>::updateDuringInsert(RankNode<T> *node, RankNode<T> *p) {
     AVLNode<T>::updateDuringInsert(node, p);
     updateVal(p);
+}
+
+template<class T>
+void RankNode<T>::updateDuringRemove(RankNode<T> *node) {
+    AVLNode<T>::updateDuringRemove(node);
+    updateVal(node);
 }
 
 

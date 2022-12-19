@@ -30,6 +30,7 @@ protected:
     output_t<AVLNode<T>*> findaux(const T& val, AVLNode<T>* root);
     void updateH(AVLNode<T>* root, AVLNode<T>* left, AVLNode<T>* right);
     virtual void updateDuringInsert(AVLNode<T>* node, AVLNode<T>* p);
+    virtual void updateDuringRemove(AVLNode<T>* node);
     virtual AVLNode<T>* makeNode(const T& val);
 
     AVLNode<T>* removeLeaf(AVLNode<T>* node);//return the bottom of the route
@@ -346,6 +347,11 @@ void AVLNode<T>::updateDuringInsert(AVLNode<T>* node, AVLNode<T>* p){
 }
 
 template<class T>
+void AVLNode<T>::updateDuringRemove(AVLNode<T>* node){
+    updateH(node, node->left, node->right);
+}
+
+template<class T>
 AVLNode<T>* AVLNode<T>::makeNode(const T& val) {
     return (new AVLNode<T>(val, this->isLarger, this->isEqual));
 }
@@ -569,7 +575,7 @@ output_t<AVLNode<T>*> AVLNode<T>::remove(const T &val) {
     //***until here is step 1 of the algo***
 
     while(bottom!= nullptr){
-        updateH(bottom, bottom->left, bottom->right);
+        updateDuringRemove(bottom);
         if(abs(bottom->getBF().ans())==2){
             if(bottom->getBF().ans()==2) {
                 if (bottom->left->getBF().ans() == -1) {
