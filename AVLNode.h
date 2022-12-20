@@ -762,7 +762,7 @@ AVLNode<T> *AVLNode<T>::findMax() {
 
 template<class T>
 int AVLNode<T>::getSize(AVLNode<T> * node) {
-    if(node== nullptr){
+    if(node == nullptr){
         return 0;
     }
     if(node->isEmpty){
