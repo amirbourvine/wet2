@@ -11,6 +11,7 @@
 using namespace std;
 
 #define COUNT 10
+#define ERROR -1
 
 template <class T>
 class RankNode {
@@ -46,7 +47,7 @@ private:
 
     void transferInfo(RankNode<T>* from, RankNode<T>* to);
 
-    output_t<int> rankaux(RankNode<T>* root, const T &value);
+    int rankaux(RankNode<T>* root, const T &value);
 public:
     RankNode(bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& pt1, const T& pt2));
     explicit RankNode(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2));
@@ -325,12 +326,12 @@ void RankNode<T>::updateDuringRemove() {
 }
 
 template<class T>
-output_t<int> RankNode<T>::rankaux(RankNode<T>* root, const T &value) {
+int RankNode<T>::rankaux(RankNode<T>* root, const T &value) {
     if(root == nullptr){
-        return StatusType::FAILURE;
+        return ERROR;
     }
     if(root->isEmpty){
-        return StatusType::FAILURE;
+        return ERROR;
     }
     if(this->isEqual(value, root->key)){
         if(root->left == nullptr)
@@ -339,19 +340,22 @@ output_t<int> RankNode<T>::rankaux(RankNode<T>* root, const T &value) {
             return 1 + root->left->val;
     }
     if(this->isLarger(root->key,value)){
-        return rankaux(value, root->left);
+        return rankaux(root->left, value);
     }
     else{
         if(root->left == nullptr)
-            return rankaux(value, root->right) + 1;
+            return rankaux(root->right, value) + 1;
         else
-            return rankaux(value, root->right) + 1 + root->left->val;
+            return rankaux(root->right, value) + 1 + root->left->val;
     }
 }
 
 template<class T>
 output_t<int> RankNode<T>::rank(const T &value) {
-    return rankaux(this, value);
+    int num = rankaux(this, value);
+    if(num==ERROR)
+        return StatusType::FAILURE;
+    return num;
 }
 
 template<class T>

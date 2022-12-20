@@ -52,7 +52,32 @@ int main(){
         root->print2D();
         cout<<"********************************************************************"<<endl;
     }
+    st = root->remove(1);
+    if(st!=StatusType::SUCCESS){
+        cout<<"failure"<<endl;
+    }
+    else{
+        root->print2D();
+        cout<<"********************************************************************"<<endl;
+    }
+    root->insert(1);
+    root->print2D();
+    cout<<"********************************************************************"<<endl;
 
+    output_t<RankNode<int>*> output = root->find(9);
+    if(output.status()!=StatusType::SUCCESS){
+        cout<<"failure"<<endl;
+    }
+    else{
+        output.ans()->print2D();
+        cout<<"********************************************************************"<<endl;
+    }
+    cout<<"****************************RANK*******************************"<<endl;
+    output_t<int> out = root->rank(5);
+    if(out.status()==StatusType::SUCCESS)
+        cout<<"RANK: " << out.ans()<<endl;
+    else
+        cout<<"FAILURE"<<endl;
 
     delete root;
     return 0;
