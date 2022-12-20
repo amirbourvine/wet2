@@ -15,7 +15,7 @@ int main(){
     RankTree<int>* root = new RankTree<int>(isLarger, isEqual);
     root->insert(1);
     root->print2D();
-    cout<<"********************************************************************"<<endl;
+   // cout<<"********************************************************************"<<endl;
 
 //    StatusType st = root->remove(20);
 //    if(st!=StatusType::SUCCESS){

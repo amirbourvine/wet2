@@ -5,132 +5,321 @@
 #ifndef DSH2_RANKNODE_H
 #define DSH2_RANKNODE_H
 
-#include "AVLNode.h"
+#include "wet2util.h"
+#include <iostream>
+
+using namespace std;
+
+#define COUNT 10
 
 template <class T>
-class RankNode : public AVLNode<T>{
+class RankNode {
 private:
+    T key;
+    RankNode<T>* left;
+    RankNode<T>* right;
+    RankNode<T>* up;
     int val;
+    int h;//height
+    bool isEmpty;
+    bool (*isEqual)(const T& t1, const T& t2);//true if t1==t2
+    bool (*isLarger)(const T& t1, const T& t2);//true if t1>t2
 
+    output_t<RankNode<T>*> insertaux(RankNode<T>* to_insert, RankNode<T> *root);
+    output_t<RankNode<T>*> findaux(const T& val, RankNode<T>* root);
+    void updateH(RankNode<T>* root);
+    void updateDuringInsert();
+    void updateDuringRemove();
+    RankNode<T>* makeNode(const T& val);
 
-    void updateVal(RankNode<T>* root);
+    RankNode<T>* removeLeaf(RankNode<T>* node);//return the bottom of the route
+    RankNode<T>* removeRightChild(RankNode<T>* node);//return the bottom of the route
+    RankNode<T>* removeLeftChild(RankNode<T>* node);//return the bottom of the route
+    RankNode<T>* removeTwoChildren(RankNode<T>* node);//return the bottom of the route
 
-    output_t<AVLNode<T>*> LLRotation(AVLNode<T>* root) override;
-    output_t<AVLNode<T>*> RRRotation(AVLNode<T>* root) override;
-    output_t<AVLNode<T>*> LRRotation(AVLNode<T>* root) override;
-    output_t<AVLNode<T>*> RLRotation(AVLNode<T>* root) override;
+    output_t<RankNode<T>*> LLRotation();
+    output_t<RankNode<T>*> RRRotation();
+    output_t<RankNode<T>*> LRRotation();
+    output_t<RankNode<T>*> RLRotation();
 
-    AVLNode<T>* makeNode(const T& val) override;
-    void updateDuringInsert(AVLNode<T>* node, AVLNode<T>* p) override;
-    void updateDuringRemove(AVLNode<T>* node) override;
+    void transferInfo(RankNode<T>* from, RankNode<T>* to);
+
+    output_t<int> rankaux(RankNode<T>* root, const T &value);
 public:
     RankNode(bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& pt1, const T& pt2));
     explicit RankNode(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2));
     RankNode(const RankNode<T>& other) = delete;
     RankNode<T>& operator=(const RankNode<T>& other) = delete;
-    virtual ~RankNode() = default;
+    virtual ~RankNode();
+
+    output_t<bool> isLeaf();
+    output_t<T*> getKey();
+    output_t<int> getBF();
+
+    output_t<RankNode<T>*> find(const T& val);
+    output_t<RankNode<T>*> insert(const T& val);
+    output_t<RankNode<T>*> remove(const T& val);
+
+    void updateVal();
 
     output_t<int> rank(const T &value);
-    output_t<int> rankaux(RankNode<T>* root, const T &value);
 
     //to delete:
-    void print2DUtil(AVLNode<T>* root, int space) override;
+    void print2DUtil(RankNode<T>* root, int space);
+    void print2D();
+    int getH();
+    RankNode<T>* getRight();
+    RankNode<T>* getLeft();
+    RankNode<T>* getUp();
 };
 
 template<class T>
 RankNode<T>::RankNode(bool (*isLarger)(const T &, const T &), bool (*isEqual)(const T &, const T &))
-        :AVLNode<T>(isLarger, isEqual), val(1){
+        : left(nullptr), right(nullptr), up(nullptr), val(1), h(0), isEmpty(true), isEqual(isEqual),
+        isLarger(isLarger){
 }
 
 template<class T>
 RankNode<T>::RankNode(const T &key, bool (*isLarger)(const T &, const T &), bool (*isEqual)(const T &, const T &))
-        :AVLNode<T>(key, isLarger, isEqual), val(1){
+        :key(key), left(nullptr), right(nullptr), up(nullptr), val(1), h(0), isEmpty(true), isEqual(isEqual),
+         isLarger(isLarger){
 }
 
 template<class T>
-void RankNode<T>::updateVal(RankNode<T> *root) {
-    if(root== nullptr){
+RankNode<T>::~RankNode() {
+    if(this == nullptr)
+    {
         return;
     }
-    RankNode<T>* left = root->left;
-    RankNode<T>* right = root->right;
+    delete this->left;
+    delete this->right;
+}
 
-    if(left == nullptr && right == nullptr){
-        root->val = 1;
+template<class T>
+void RankNode<T>::updateVal() {
+    if(this == nullptr){
+        return;
     }
-    if(left != nullptr && right == nullptr){
-        root->val = 1 + left->val;
+
+    if(this->left == nullptr && this->right == nullptr){
+        this->val = 1;
     }
-    if(left != nullptr && right != nullptr){
-        root->val = 1 + left->val + right->val;
+    if(this->left != nullptr && this->right == nullptr){
+        this->val = 1 + this->left->val;
     }
-    if(left != nullptr && right == nullptr){
-        root->val = 1 + right->val;
+    if(this->left != nullptr && this->right != nullptr){
+        this->val = 1 + this->right->val + this->left->val;
+    }
+    if(this->left == nullptr && this->right != nullptr){
+        this->val = 1 + this->right->val;
     }
 }
 
 
 template<class T>
-output_t<AVLNode<T> *> RankNode<T>::LLRotation(AVLNode<T> *root) {
-    output_t<AVLNode<T> *> out = AVLNode<T>::LLRotation(root);
-    if(out.status()!=StatusType::SUCCESS){
-        return out.status();
+output_t<RankNode<T> *> RankNode<T>::LLRotation() {
+    if(this == nullptr){
+        return StatusType::INVALID_INPUT;
     }
-    updateVal(out.ans()->right);
-    updateVal(out.ans());
-    return out.ans();
+    if(this->left == nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+    if(this->left->left == nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+    RankNode<T>* B = this;
+    RankNode<T>* A = this->left;
+    RankNode<T>* AR = A->right;
+    RankNode<T>* BR = B->right;
+    RankNode<T>* AL = A->left;
+
+    if(B->up!= nullptr) {
+        if (B->up->left == B) {
+            B->up->left = A;
+        } else {
+            B->up->right = A;
+        }
+    }
+    A->up = B->up;
+    A->right = B;
+    B->up = A;
+    B->left = AR;
+    if(AR!= nullptr) {
+        AR->up = B;
+    }
+
+    updateH(B);
+    B->updateVal();
+
+    updateH(A);
+    A->updateVal();
+
+    return A;
 }
 
 template<class T>
-output_t<AVLNode<T> *> RankNode<T>::RRRotation(AVLNode<T> *root) {
-    output_t<AVLNode<T> *> out = AVLNode<T>::RRRotation(root);
-    if(out.status()!=StatusType::SUCCESS){
-        return out.status();
+output_t<RankNode<T> *> RankNode<T>::RRRotation() {
+    if(this == nullptr){
+        return StatusType::INVALID_INPUT;
     }
-    updateVal(out.ans()->left);
-    updateVal(out.ans());
-    return out.ans();
+    if(this->right == nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+    if(this->right->right == nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+
+    RankNode<T>* B = this;
+    RankNode<T>* A = this->right;
+    RankNode<T>* AL = A->left;
+    RankNode<T>* AR = A->right;
+    RankNode<T>* BL = B->left;
+
+    if(B->up!= nullptr) {
+        if (B->up->left == B) {
+            B->up->left = A;
+        } else {
+            B->up->right = A;
+        }
+    }
+    A->up = B->up;
+    A->left = B;
+    B->up = A;
+    B->right = AL;
+    if(AL!= nullptr) {
+        AL->up = B;
+    }
+
+    updateH(B, BL, AL);
+    B->updateVal();
+
+    updateH(A,B,AR);
+    A->updateVal();
+
+    return A;
 }
 
 template<class T>
-output_t<AVLNode<T> *> RankNode<T>::LRRotation(AVLNode<T> *root) {
-    output_t<AVLNode<T> *> out = AVLNode<T>::LRRotation(root);
-    if(out.status()!=StatusType::SUCCESS){
-        return out.status();
+output_t<RankNode<T> *> RankNode<T>::LRRotation() {
+    if(this == nullptr){
+        return StatusType::INVALID_INPUT;
     }
-    updateVal(out.ans()->left);
-    updateVal(out.ans()->right);
-    updateVal(out.ans());
-    return out.ans();
+    if(this->left == nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+    if(this->left->right == nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+
+    RankNode<T>* C = this;
+    RankNode<T>* A = C->left;
+    RankNode<T>* B = A->right;
+    RankNode<T>* BL = B->left;
+    RankNode<T>* BR = B->right;
+    RankNode<T>* AL = A->left;
+    RankNode<T>* CR = C->right;
+
+    if(C->up!= nullptr) {
+        if (C->up->left == C) {
+            C->up->left = B;
+        } else {
+            C->up->right = B;
+        }
+    }
+    B->up = C->up;
+    B->left = A;
+    B->right = C;
+    A->up = B;
+    A->right = BL;
+    if(BL!= nullptr) {
+        BL->up = A;
+    }
+    C->up = B;
+    C->left = BR;
+    if(BR!= nullptr) {
+        BR->up = C;
+    }
+
+    updateH(A, AL, BL);
+    A->updateVal();
+
+    updateH(C, BR, CR);
+    C->updateVal();
+
+    updateH(B, A, C);
+    B->updateVal();
+
+    return B;
 }
 
 template<class T>
-output_t<AVLNode<T> *> RankNode<T>::RLRotation(AVLNode<T> *root) {
-    output_t<AVLNode<T> *> out = AVLNode<T>::RLRotation(root);
-    if(out.status()!=StatusType::SUCCESS){
-        return out.status();
+output_t<RankNode<T> *> RankNode<T>::RLRotation() {
+    if(this == nullptr){
+        return StatusType::INVALID_INPUT;
     }
-    updateVal(out.ans()->left);
-    updateVal(out.ans()->right);
-    updateVal(out.ans());
-    return out.ans();
+    if(this->right == nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+    if(this->right->left == nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+
+    RankNode<T>* C = this;
+    RankNode<T>* A = C->right;
+    RankNode<T>* B = A->left;
+    RankNode<T>* BL = B->left;
+    RankNode<T>* BR = B->right;
+    RankNode<T>* CL = C->left;
+    RankNode<T>* AR = A->right;
+
+    if(C->up!= nullptr) {
+        if (C->up->left == C) {
+            C->up->left = B;
+        } else {
+            C->up->right = B;
+        }
+    }
+    B->up = C->up;
+    B->left = C;
+    B->right = A;
+    C->up = B;
+    C->right = BL;
+    if(BL!= nullptr) {
+        BL->up = C;
+    }
+    A->up = B;
+    A->left = BR;
+    if(BR!= nullptr) {
+        BR->up = A;
+    }
+
+    updateH(C, CL, BL);
+    C->updateVal();
+
+    updateH(A, BR, AR);
+    A->updateVal();
+
+    updateH(B, C, A);
+    B->updateVal();
+
+    return B;
 }
 
 template<class T>
-AVLNode<T> *RankNode<T>::makeNode(const T &value) {
+RankNode<T> *RankNode<T>::makeNode(const T &value) {
     return (new RankNode<T>(value, this->isLarger, this->isEqual));
 }
 
 template<class T>
-void RankNode<T>::updateDuringInsert(AVLNode<T> *node, AVLNode<T> *p) {
-    AVLNode<T>::updateDuringInsert(node, p);
-    updateVal(p);
+void RankNode<T>::updateDuringInsert() {
+    this->up->h = this->h+1;
+    this->up->updateVal();
 }
 
 template<class T>
-void RankNode<T>::updateDuringRemove(AVLNode<T> *node) {
-    AVLNode<T>::updateDuringRemove(node);
-    updateVal(node);
+void RankNode<T>::updateDuringRemove() {
+    updateH(this);
+    this->updateVal();
 }
 
 template<class T>
@@ -164,7 +353,7 @@ output_t<int> RankNode<T>::rank(const T &value) {
 }
 
 template<class T>
-void RankNode<T>::print2DUtil(AVLNode<T> *root, int space) {
+void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
     // Base case
     if (root == nullptr)
         return;
@@ -182,12 +371,410 @@ void RankNode<T>::print2DUtil(AVLNode<T> *root, int space) {
     cout << endl;
     for (int i = COUNT; i < space; i++)
         cout << " ";
-    T* t= root->getKey().ans();
+    T* t= root->key;
     cout << *t << ", h:" << root->h << ", val:"<< root->val << "\n";
 
     // Process left child
     print2DUtil(root->left, space);
 }
 
+template<class T>
+output_t<bool> RankNode<T>::isLeaf() {
+    if(this==nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+    if(this->right==nullptr && this->left==nullptr){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+template<class T>
+output_t<RankNode<T> *> RankNode<T>::insertaux(RankNode<T> *to_insert, RankNode<T> *root) {
+    if(root == nullptr){
+        return StatusType::FAILURE;
+    }
+    if(root->isEmpty){
+        return StatusType::FAILURE;
+    }
+    if(this->isEqual(to_insert->key, root->key)){
+        return StatusType::FAILURE;//no equal values in the tree
+    }
+    if(this->isLarger(root->key,to_insert->key)){
+        if(root->left == nullptr){
+            root->left = to_insert;
+            root->left->up = root;
+            return root->left;
+        }
+        else{
+            return insertaux(to_insert, root->left);
+        }
+    }
+    else{
+        if(root->right == nullptr){
+            root->right = to_insert;
+            root->right->up = root;
+            return root->right;
+        }
+        else{
+            return insertaux(to_insert, root->right);
+        }
+    }
+}
+
+template<class T>
+output_t<RankNode<T> *> RankNode<T>::findaux(const T &value, RankNode<T> *root) {
+    if(root == nullptr){
+        return StatusType::FAILURE;
+    }
+    if(root->isEmpty){
+        return StatusType::FAILURE;
+    }
+    if(this->isEqual(value, root->key)){
+        return root;
+    }
+    if(this->isLarger(root->key,value)){
+        return findaux(value, root->left);
+    }
+    else{
+        return findaux(value, root->right);
+    }
+}
+
+template<class T>
+void RankNode<T>::updateH(RankNode<T> *root) {
+    if(root == nullptr){
+        return;
+    }
+    if(root->left != nullptr && root->right != nullptr)
+        root->h= max(root->left->h, root->right->h)+1;
+    if(root->left!= nullptr && root->right == nullptr)
+        root->h= root->left->h+1;
+    if(root->left== nullptr && root->right != nullptr)
+        root->h= root->right->h+1;
+    if(root->left== nullptr && root->right == nullptr)
+        root->h= 0;
+}
+
+template<class T>
+RankNode<T> *RankNode<T>::removeLeaf(RankNode<T> *node) {
+    RankNode<T>* temp = node->up;
+    if(temp == nullptr){
+        delete node;
+        return nullptr;
+    }
+    if(node->up->left==node){
+        node->up->left = nullptr;
+        delete node;
+    }
+    else{
+        node->up->right = nullptr;
+        delete node;
+    }
+    return temp;
+}
+
+template<class T>
+RankNode<T> *RankNode<T>::removeRightChild(RankNode<T> *node) {
+    if(node->up == nullptr){
+        RankNode<T>* keep = node->right;
+        transferInfo(node->right, node);
+        node->up = nullptr;
+
+        keep->right = nullptr;
+        keep->left = nullptr;
+
+        delete keep;
+        if(node->right!= nullptr)
+            node->right->up = node;
+        return node;
+    }
+    if(node->up->left==node){
+        RankNode<T>* keep = node->up;
+        node->up->left = node->right;
+        node->up->left->up = node->up;
+
+        node->right = nullptr;
+        delete node;
+        return keep;
+    }
+    else{
+        RankNode<T>* keep = node->up;
+        node->up->right = node->right;
+        node->up->right->up = node->up;
+
+        node->right = nullptr;
+        delete node;
+        return keep;
+    }
+}
+
+template<class T>
+RankNode<T> *RankNode<T>::removeLeftChild(RankNode<T> *node) {
+    if(node->up == nullptr){
+        RankNode<T>* keep = node->left;
+        transferInfo(node->left, node);
+        node->up = nullptr;
+
+        keep->right = nullptr;
+        keep->left = nullptr;
+
+        delete keep;
+        if(node->left!= nullptr)
+            node->left->up = node;
+        return node;
+    }
+    if(node->up->left==node){
+        RankNode<T>* keep = node->up;
+        node->up->left = node->left;
+        node->up->left->up = node->up;
+
+        node->left = nullptr;
+        delete node;
+        return keep;
+    }
+    else{
+        RankNode<T>* keep = node->up;
+        node->up->right = node->left;
+        node->up->right->up = node->up;
+
+        node->left = nullptr;
+        node->left = nullptr;
+        delete node;
+        return keep;
+    }
+}
+
+template<class T>
+RankNode<T> *RankNode<T>::removeTwoChildren(RankNode<T> *node) {
+    RankNode<T>* successor = node->right;
+    while(successor->left != nullptr){
+        successor = successor->left;
+    }
+    T& keep = node->key;
+    node->key = successor->key;
+    successor->key = keep;
+    if(successor->right == nullptr){
+        return removeLeaf(successor);
+    }
+    else{
+        return removeRightChild(successor);
+    }
+}
+
+template<class T>
+void RankNode<T>::transferInfo(RankNode<T> *from, RankNode<T> *to) {
+    to->key = from->key;//require operator= on T
+    to->left = from->left;
+    to->right = from->right;
+    to->up = from->up;
+    to->h = from->h;
+    to->isEmpty = from->isEmpty;
+    to->val = from->val;
+}
+
+template<class T>
+output_t<T*> RankNode<T>::getKey() {
+    if(this==nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+    if(this->isEmpty)
+        return nullptr;
+
+    return &(this->key);
+}
+
+template<class T>
+output_t<int> RankNode<T>::getBF() {
+    if(this == nullptr){
+        return StatusType::INVALID_INPUT;
+    }
+    if(this->left == nullptr && this->right == nullptr){
+        return 0;
+    }
+    if(this->left == nullptr && this->right != nullptr){
+        return (-1-this->right->h);
+    }
+    if(this->left != nullptr && this->right == nullptr){
+        return (this->left->h+1);
+    }
+    if(this->left != nullptr && this->right != nullptr){
+        return (this->left->h-this->right->h);
+    }
+    return StatusType::FAILURE;//should not reach this code
+}
+
+template<class T>
+output_t<RankNode<T> *> RankNode<T>::find(const T &value) {
+    return findaux(value, this);
+}
+
+template<class T>
+output_t<RankNode<T> *> RankNode<T>::insert(const T &val) {
+    if(this->isEmpty){//case of empty tree
+        this->key = val;
+        this->isEmpty = false;
+        return this;
+    }
+
+    RankNode<T>* to_insert = makeNode(val);
+
+    output_t<RankNode<T>*> temp = insertaux(to_insert, this);
+    if(temp.status()==StatusType::FAILURE){
+        delete to_insert;
+        return StatusType::FAILURE;
+    }
+
+    RankNode<T>* node = temp.ans();
+
+    RankNode<T>* p;
+    RankNode<T>* q;
+    while(node!= nullptr && node!=this){
+        p = node->up;
+        if(p == nullptr){break;}
+        if(p->h >= node->h+1){
+            return this;
+        }
+        node->updateDuringInsert;
+        if(abs(p->getBF().ans())==2){
+            if(p->getBF().ans()==2) {
+                if (p->left->getBF().ans() == -1) {
+                    q = p->LRRotation().ans();
+                    if(q->h>this->h)
+                        return q;
+                    else
+                        return this;
+                } else {
+                    q = p->LLRotation().ans();
+                    if(q->h>this->h)
+                        return q;
+                    else
+                        return this;
+                }
+            }
+            if(p->getBF().ans()==-2){
+                if(p->right->getBF().ans()==1){
+                    q = p->RLRotation().ans();
+
+                    if(q->h>this->h)
+                        return q;
+                    else
+                        return this;
+                }
+                else{
+                    q = p->RRRotation().ans();
+                    if(q->h>this->h)
+                        return q;
+                    else
+                        return this;
+                }
+            }
+        }
+        else{
+            node = p;
+        }
+    }
+    return this;
+}
+
+template<class T>
+output_t<RankNode<T> *> RankNode<T>::remove(const T &value) {
+    output_t<RankNode<T>*> output = find(value);
+    if(output.status()!=StatusType::SUCCESS){
+        return output.status();
+    }
+    RankNode<T>* node = output.ans();
+    RankNode<T>* bottom;
+    RankNode<T>* keep;
+
+    if(node->right == nullptr && node->left == nullptr){
+        if(node->up == nullptr){
+            node->isEmpty = true;
+            return node;
+        }
+        bottom = removeLeaf(node);
+    }
+    else {
+        if (node->right != nullptr && node->left == nullptr) {
+            bottom = removeRightChild(node);
+        } else {
+            if (node->right == nullptr && node->left != nullptr) {
+                bottom = removeLeftChild(node);
+            }
+            else {
+                if (node->right != nullptr && node->left != nullptr) {
+                    bottom = removeTwoChildren(node);
+                }
+            }
+        }
+    }
+    //***until here is step 1 of the algo***
+
+    while(bottom!= nullptr){
+        bottom->updateDuringRemove();
+        if(abs(bottom->getBF().ans())==2){
+            if(bottom->getBF().ans()==2) {
+                if (bottom->left->getBF().ans() == -1) {
+                    bottom = bottom->LRRotation().ans();
+                } else {
+                    bottom = bottom->LLRotation().ans();
+                }
+            }
+            else{
+                if(bottom->right->getBF().ans()==1){
+                    bottom = bottom->RLRotation().ans();
+                }
+                else{
+                    bottom = bottom->RRRotation().ans();
+                }
+            }
+        }
+        if(bottom!= nullptr) {
+            keep = bottom;
+            bottom = bottom->up;
+        }
+    }
+
+    return keep;
+}
+
+template<class T>
+int RankNode<T>::getH() {
+    if(this== nullptr){
+        return -1;
+    }
+    return this->h;
+}
+
+template<class T>
+RankNode<T> *RankNode<T>::getRight() {
+    if(this== nullptr){
+        return nullptr;
+    }
+    return this->right;
+}
+
+template<class T>
+RankNode<T> *RankNode<T>::getLeft() {
+    if(this== nullptr){
+        return nullptr;
+    }
+    return this->left;
+}
+
+template<class T>
+RankNode<T> *RankNode<T>::getUp() {
+    if(this== nullptr){
+        return nullptr;
+    }
+    return this->up;
+}
+
+template<class T>
+void RankNode<T>::print2D() {
+    print2DUtil(this, 0);
+}
 
 #endif //DSH2_RANKNODE_H
