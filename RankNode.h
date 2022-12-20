@@ -28,9 +28,11 @@ private:
     output_t<RankNode<T>*> insertaux(RankNode<T>* to_insert, RankNode<T> *root);
     output_t<RankNode<T>*> findaux(const T& val, RankNode<T>* root);
     void updateH(RankNode<T>* root);
+    void fixVal();
     void updateDuringInsert();
     void updateDuringRemove();
     RankNode<T>* makeNode(const T& val);
+
 
     RankNode<T>* removeLeaf(RankNode<T>* node);//return the bottom of the route
     RankNode<T>* removeRightChild(RankNode<T>* node);//return the bottom of the route
@@ -81,7 +83,7 @@ RankNode<T>::RankNode(bool (*isLarger)(const T &, const T &), bool (*isEqual)(co
 
 template<class T>
 RankNode<T>::RankNode(const T &key, bool (*isLarger)(const T &, const T &), bool (*isEqual)(const T &, const T &))
-        :key(key), left(nullptr), right(nullptr), up(nullptr), val(1), h(0), isEmpty(true), isEqual(isEqual),
+        :key(key), left(nullptr), right(nullptr), up(nullptr), val(1), h(0), isEmpty(false), isEqual(isEqual),
          isLarger(isLarger){
 }
 
@@ -190,10 +192,10 @@ output_t<RankNode<T> *> RankNode<T>::RRRotation() {
         AL->up = B;
     }
 
-    updateH(B, BL, AL);
+    updateH(B);
     B->updateVal();
 
-    updateH(A,B,AR);
+    updateH(A);
     A->updateVal();
 
     return A;
@@ -240,13 +242,13 @@ output_t<RankNode<T> *> RankNode<T>::LRRotation() {
         BR->up = C;
     }
 
-    updateH(A, AL, BL);
+    updateH(A);
     A->updateVal();
 
-    updateH(C, BR, CR);
+    updateH(C);
     C->updateVal();
 
-    updateH(B, A, C);
+    updateH(B);
     B->updateVal();
 
     return B;
@@ -293,13 +295,13 @@ output_t<RankNode<T> *> RankNode<T>::RLRotation() {
         BR->up = A;
     }
 
-    updateH(C, CL, BL);
+    updateH(C);
     C->updateVal();
 
-    updateH(A, BR, AR);
+    updateH(A);
     A->updateVal();
 
-    updateH(B, C, A);
+    updateH(B);
     B->updateVal();
 
     return B;
@@ -360,6 +362,7 @@ void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
     if(root->isEmpty)
         return;
 
+
     // Increase distance between levels
     space += COUNT;
 
@@ -371,8 +374,8 @@ void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
     cout << endl;
     for (int i = COUNT; i < space; i++)
         cout << " ";
-    T* t= root->key;
-    cout << *t << ", h:" << root->h << ", val:"<< root->val << "\n";
+    T t= root->key;
+    cout << t << ", h:" << root->h << ", val:"<< root->val << "\n";
 
     // Process left child
     print2DUtil(root->left, space);
@@ -612,14 +615,14 @@ output_t<RankNode<T> *> RankNode<T>::find(const T &value) {
 }
 
 template<class T>
-output_t<RankNode<T> *> RankNode<T>::insert(const T &val) {
+output_t<RankNode<T> *> RankNode<T>::insert(const T &value) {
     if(this->isEmpty){//case of empty tree
-        this->key = val;
+        this->key = value;
         this->isEmpty = false;
         return this;
     }
 
-    RankNode<T>* to_insert = makeNode(val);
+    RankNode<T>* to_insert = makeNode(value);
 
     output_t<RankNode<T>*> temp = insertaux(to_insert, this);
     if(temp.status()==StatusType::FAILURE){
@@ -635,23 +638,29 @@ output_t<RankNode<T> *> RankNode<T>::insert(const T &val) {
         p = node->up;
         if(p == nullptr){break;}
         if(p->h >= node->h+1){
+            p->fixVal();
             return this;
         }
-        node->updateDuringInsert;
+        node->updateDuringInsert();
         if(abs(p->getBF().ans())==2){
             if(p->getBF().ans()==2) {
                 if (p->left->getBF().ans() == -1) {
                     q = p->LRRotation().ans();
-                    if(q->h>this->h)
+                    if(q->h>this->h) {
                         return q;
-                    else
+                    }
+                    else {
+                        this->fixVal();
                         return this;
+                    }
                 } else {
                     q = p->LLRotation().ans();
                     if(q->h>this->h)
                         return q;
-                    else
+                    else {
+                        this->fixVal();
                         return this;
+                    }
                 }
             }
             if(p->getBF().ans()==-2){
@@ -660,15 +669,19 @@ output_t<RankNode<T> *> RankNode<T>::insert(const T &val) {
 
                     if(q->h>this->h)
                         return q;
-                    else
+                    else {
+                        this->fixVal();
                         return this;
+                    }
                 }
                 else{
                     q = p->RRRotation().ans();
                     if(q->h>this->h)
                         return q;
-                    else
+                    else {
+                        this->fixVal();
                         return this;
+                    }
                 }
             }
         }
@@ -775,6 +788,15 @@ RankNode<T> *RankNode<T>::getUp() {
 template<class T>
 void RankNode<T>::print2D() {
     print2DUtil(this, 0);
+}
+
+template<class T>
+void RankNode<T>::fixVal() {
+    RankNode<T>* temp = this;
+    while(temp != nullptr){
+        temp->updateVal();
+        temp = temp->up;
+    }
 }
 
 #endif //DSH2_RANKNODE_H

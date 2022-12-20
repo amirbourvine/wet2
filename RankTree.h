@@ -101,7 +101,7 @@ int RankTree<T>::getH() {
 
 template<class T>
 StatusType RankTree<T>::insert(const T &val) {
-    output_t<RankTree<T>*> output = this->root->insert(val);
+    output_t<RankNode<T>*> output = this->root->insert(val);
     if(output.status()==StatusType::SUCCESS)
         this->root = output.ans();
     return output.status();
@@ -109,7 +109,7 @@ StatusType RankTree<T>::insert(const T &val) {
 
 template<class T>
 StatusType RankTree<T>::remove(const T &val) {
-    output_t<RankTree<T>*> output = this->root->remove(val);
+    output_t<RankNode<T>*> output = this->root->remove(val);
     if(output.status()==StatusType::SUCCESS)
         this->root = output.ans();
     return output.status();

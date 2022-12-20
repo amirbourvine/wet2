@@ -13,18 +13,46 @@ bool isEqual(const int& x, const int& y){
 
 int main(){
     RankTree<int>* root = new RankTree<int>(isLarger, isEqual);
-    root->insert(1);
+    for(int i = 0; i<10; i++){
+        root->insert(i+1);
+    }
     root->print2D();
-   // cout<<"********************************************************************"<<endl;
+    cout<<"********************************************************************"<<endl;
 
-//    StatusType st = root->remove(20);
-//    if(st!=StatusType::SUCCESS){
-//        cout<<"SUCCESS"<<endl;
-//    }
-//    else{
-//        root->print2D();
-//    }
-//    root->print2D();
+    StatusType st = root->remove(8);
+    if(st!=StatusType::SUCCESS){
+        cout<<"failure"<<endl;
+    }
+    else{
+        root->print2D();
+        cout<<"********************************************************************"<<endl;
+    }
+
+    st = root->remove(7);
+    if(st!=StatusType::SUCCESS){
+        cout<<"failure"<<endl;
+    }
+    else{
+        root->print2D();
+        cout<<"********************************************************************"<<endl;
+    }
+    st = root->remove(4);
+    if(st!=StatusType::SUCCESS){
+        cout<<"failure"<<endl;
+    }
+    else{
+        root->print2D();
+         cout<<"********************************************************************"<<endl;
+    }
+    st = root->remove(1);
+    if(st!=StatusType::SUCCESS){
+        cout<<"failure"<<endl;
+    }
+    else{
+        root->print2D();
+        cout<<"********************************************************************"<<endl;
+    }
+
 
     delete root;
     return 0;
