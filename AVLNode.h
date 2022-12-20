@@ -82,7 +82,7 @@ public:
 
 
     //to delete:
-    void print2DUtil(AVLNode<T>* root, int space);
+    virtual void print2DUtil(AVLNode<T>* root, int space);
     void print2D();
     AVLNode<T>* getRight();
     AVLNode<T>* getLeft();

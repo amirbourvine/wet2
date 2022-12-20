@@ -32,6 +32,9 @@ public:
 
     output_t<int> rank(const T &value);
     output_t<int> rankaux(RankNode<T>* root, const T &value);
+
+    //to delete:
+    void print2DUtil(RankNode<T>* root, int space) override;
 };
 
 template<class T>
@@ -158,6 +161,32 @@ output_t<int> RankNode<T>::rankaux(RankNode<T>* root, const T &value) {
 template<class T>
 output_t<int> RankNode<T>::rank(const T &value) {
     return rankaux(this, value);
+}
+
+template<class T>
+void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
+    // Base case
+    if (root == nullptr)
+        return;
+    if(root->isEmpty)
+        return;
+
+    // Increase distance between levels
+    space += COUNT;
+
+    // Process right child first
+    print2DUtil(root->right, space);
+
+    // Print current node after space
+    // count
+    cout << endl;
+    for (int i = COUNT; i < space; i++)
+        cout << " ";
+    T* t= root->getKey().ans();
+    cout << *t << ", h:" << root->h << ", val:"<< root->val << "\n";
+
+    // Process left child
+    print2DUtil(root->left, space);
 }
 
 
