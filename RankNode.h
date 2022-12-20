@@ -78,9 +78,6 @@ output_t<RankNode<T> *> RankNode<T>::LLRotation(RankNode<T> *root) {
     return out.ans();
 }
 
-void stam(){
-
-}
 template<class T>
 output_t<RankNode<T> *> RankNode<T>::RRRotation(RankNode<T> *root) {
     output_t<AVLNode<T> *> out = AVLNode<T>::RRRotation(root);
