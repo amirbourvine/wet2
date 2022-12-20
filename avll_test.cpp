@@ -19,6 +19,15 @@ int main(){
     root->print2D();
     cout<<"********************************************************************"<<endl;
 
+    StatusType st = root->remove(20);
+    if(st!=StatusType::SUCCESS){
+        cout<<"SUCCESS"<<endl;
+    }
+    else{
+        root->print2D();
+    }
+
+    root->print2D();
     delete root;
     return 0;
 }

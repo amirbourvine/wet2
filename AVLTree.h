@@ -124,7 +124,8 @@ StatusType AVLTree<T>::insert(const T &val) {
 template<class T>
 StatusType AVLTree<T>::remove(const T &val) {
     output_t<AVLNode<T>*> output = this->root->remove(val);
-    this->root = output.ans();
+    if(output.status()==StatusType::SUCCESS)
+        this->root = output.ans();
     return output.status();
 }
 
