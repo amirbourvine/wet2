@@ -117,7 +117,8 @@ int AVLTree<T>::getH() {
 template<class T>
 StatusType AVLTree<T>::insert(const T &val) {
     output_t<AVLNode<T>*> output = this->root->insert(val);
-    this->root = output.ans();
+    if(output.status()==StatusType::SUCCESS)
+        this->root = output.ans();
     return output.status();
 }
 
