@@ -365,6 +365,7 @@ output_t<AVLNode<T>*> AVLNode<T>::insert(const T& val) {
     }
 
     AVLNode<T>* to_insert = makeNode(val);
+
     output_t<AVLNode<T>*> temp = insertaux(to_insert, this);
     if(temp.status()==StatusType::FAILURE){
         delete to_insert;
@@ -498,7 +499,7 @@ void AVLNode<T>::print2DUtil(AVLNode<T>* root, int space)
     for (int i = COUNT; i < space; i++)
         cout << " ";
     T* t= root->getKey().ans();
-    cout << **t << "h: " << root->h << "\n";
+    cout << *t << ", h:" << root->h << "\n";
 
     // Process left child
     print2DUtil(root->left, space);
