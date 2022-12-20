@@ -15,14 +15,14 @@ private:
 
     void updateVal(RankNode<T>* root);
 
-    output_t<RankNode<T>*> LLRotation(RankNode<T>* root) override;
-    output_t<RankNode<T>*> RRRotation(RankNode<T>* root) override;
-    output_t<RankNode<T>*> LRRotation(RankNode<T>* root) override;
-    output_t<RankNode<T>*> RLRotation(RankNode<T>* root) override;
+    output_t<AVLNode<T>*> LLRotation(AVLNode<T>* root) override;
+    output_t<AVLNode<T>*> RRRotation(AVLNode<T>* root) override;
+    output_t<AVLNode<T>*> LRRotation(AVLNode<T>* root) override;
+    output_t<AVLNode<T>*> RLRotation(AVLNode<T>* root) override;
 
-    RankNode<T>* makeNode(const T& val) override;
-    void updateDuringInsert(RankNode<T>* node, RankNode<T>* p) override;
-    void updateDuringRemove(RankNode<T>* node) override;
+    AVLNode<T>* makeNode(const T& val) override;
+    void updateDuringInsert(AVLNode<T>* node, AVLNode<T>* p) override;
+    void updateDuringRemove(AVLNode<T>* node) override;
 public:
     RankNode(bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& pt1, const T& pt2));
     explicit RankNode(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2));
@@ -34,7 +34,7 @@ public:
     output_t<int> rankaux(RankNode<T>* root, const T &value);
 
     //to delete:
-    void print2DUtil(RankNode<T>* root, int space) override;
+    void print2DUtil(AVLNode<T>* root, int space) override;
 };
 
 template<class T>
@@ -71,7 +71,7 @@ void RankNode<T>::updateVal(RankNode<T> *root) {
 
 
 template<class T>
-output_t<RankNode<T> *> RankNode<T>::LLRotation(RankNode<T> *root) {
+output_t<AVLNode<T> *> RankNode<T>::LLRotation(AVLNode<T> *root) {
     output_t<AVLNode<T> *> out = AVLNode<T>::LLRotation(root);
     if(out.status()!=StatusType::SUCCESS){
         return out.status();
@@ -82,7 +82,7 @@ output_t<RankNode<T> *> RankNode<T>::LLRotation(RankNode<T> *root) {
 }
 
 template<class T>
-output_t<RankNode<T> *> RankNode<T>::RRRotation(RankNode<T> *root) {
+output_t<AVLNode<T> *> RankNode<T>::RRRotation(AVLNode<T> *root) {
     output_t<AVLNode<T> *> out = AVLNode<T>::RRRotation(root);
     if(out.status()!=StatusType::SUCCESS){
         return out.status();
@@ -93,7 +93,7 @@ output_t<RankNode<T> *> RankNode<T>::RRRotation(RankNode<T> *root) {
 }
 
 template<class T>
-output_t<RankNode<T> *> RankNode<T>::LRRotation(RankNode<T> *root) {
+output_t<AVLNode<T> *> RankNode<T>::LRRotation(AVLNode<T> *root) {
     output_t<AVLNode<T> *> out = AVLNode<T>::LRRotation(root);
     if(out.status()!=StatusType::SUCCESS){
         return out.status();
@@ -105,7 +105,7 @@ output_t<RankNode<T> *> RankNode<T>::LRRotation(RankNode<T> *root) {
 }
 
 template<class T>
-output_t<RankNode<T> *> RankNode<T>::RLRotation(RankNode<T> *root) {
+output_t<AVLNode<T> *> RankNode<T>::RLRotation(AVLNode<T> *root) {
     output_t<AVLNode<T> *> out = AVLNode<T>::RLRotation(root);
     if(out.status()!=StatusType::SUCCESS){
         return out.status();
@@ -117,18 +117,18 @@ output_t<RankNode<T> *> RankNode<T>::RLRotation(RankNode<T> *root) {
 }
 
 template<class T>
-RankNode<T> *RankNode<T>::makeNode(const T &value) {
+AVLNode<T> *RankNode<T>::makeNode(const T &value) {
     return (new RankNode<T>(value, this->isLarger, this->isEqual));
 }
 
 template<class T>
-void RankNode<T>::updateDuringInsert(RankNode<T> *node, RankNode<T> *p) {
+void RankNode<T>::updateDuringInsert(AVLNode<T> *node, AVLNode<T> *p) {
     AVLNode<T>::updateDuringInsert(node, p);
     updateVal(p);
 }
 
 template<class T>
-void RankNode<T>::updateDuringRemove(RankNode<T> *node) {
+void RankNode<T>::updateDuringRemove(AVLNode<T> *node) {
     AVLNode<T>::updateDuringRemove(node);
     updateVal(node);
 }
@@ -164,7 +164,7 @@ output_t<int> RankNode<T>::rank(const T &value) {
 }
 
 template<class T>
-void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
+void RankNode<T>::print2DUtil(AVLNode<T> *root, int space) {
     // Base case
     if (root == nullptr)
         return;
