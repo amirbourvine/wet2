@@ -73,11 +73,21 @@ int main(){
         cout<<"********************************************************************"<<endl;
     }
     cout<<"****************************RANK*******************************"<<endl;
-    output_t<int> out = root->rank(5);
+    output_t<int> out = root->rank(1);
     if(out.status()==StatusType::SUCCESS)
         cout<<"RANK: " << out.ans()<<endl;
     else
         cout<<"FAILURE"<<endl;
+
+    cout<<"****************************GET FROM RANK*******************************"<<endl;
+    root->print2D();
+
+    output_t<int*> out1 = root->getIthRanked(2);
+    if(out1.status()==StatusType::SUCCESS)
+        cout<<"ITH RANKED: " << *(out1.ans())<<endl;
+    else
+        cout<<"FAILURE"<<endl;
+
 
     delete root;
     return 0;

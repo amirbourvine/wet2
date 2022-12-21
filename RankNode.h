@@ -11,7 +11,7 @@
 using namespace std;
 
 #define COUNT 10
-#define ERROR -1
+#define ERROR (-1)
 
 template <class T>
 class RankNode {
@@ -28,6 +28,7 @@ private:
 
     output_t<RankNode<T>*> insertaux(RankNode<T>* to_insert, RankNode<T> *root);
     output_t<RankNode<T>*> findaux(const T& val, RankNode<T>* root);
+    output_t<T*> getIthRankedaux(RankNode<T>* root, int i);
     void updateH(RankNode<T>* root);
     void fixVal();
     void updateDuringInsert();
@@ -62,6 +63,8 @@ public:
     output_t<RankNode<T>*> find(const T& val);
     output_t<RankNode<T>*> insert(const T& val);
     output_t<RankNode<T>*> remove(const T& val);
+
+    output_t<T*> getIthRanked(int i);
 
     void updateVal();
 
@@ -335,9 +338,9 @@ int RankNode<T>::rankaux(RankNode<T>* root, const T &value) {
     }
     if(this->isEqual(value, root->key)){
         if(root->left == nullptr)
-            return 1;
+            return 0;
         else
-            return 1 + root->left->val;
+            return root->left->val;
     }
     if(this->isLarger(root->key,value)){
         return rankaux(root->left, value);
@@ -352,6 +355,7 @@ int RankNode<T>::rankaux(RankNode<T>* root, const T &value) {
 
 template<class T>
 output_t<int> RankNode<T>::rank(const T &value) {
+    //first index: 0
     int num = rankaux(this, value);
     if(num==ERROR)
         return StatusType::FAILURE;
@@ -801,6 +805,33 @@ void RankNode<T>::fixVal() {
         temp->updateVal();
         temp = temp->up;
     }
+}
+
+template<class T>
+output_t<T*> RankNode<T>::getIthRanked(int i) {
+    //first index:0
+    return getIthRankedaux(this,i);
+}
+
+template<class T>
+output_t<T*> RankNode<T>::getIthRankedaux(RankNode<T>* root, int i) {
+    if(root== nullptr){
+        return StatusType::FAILURE;
+    }
+    if(root->isEmpty){
+        return StatusType::FAILURE;
+    }
+
+    if(root->left == nullptr){
+        if(i==0)
+            return &(root->key);
+        return getIthRankedaux(root->right, i-1);
+    }
+    if (root->left->val == i)
+        return &(root->key);
+    if (root->left->val > i)
+        return getIthRankedaux(root->left, i);
+    return getIthRankedaux(root->right, i-1-root->left->val);
 }
 
 #endif //DSH2_RANKNODE_H

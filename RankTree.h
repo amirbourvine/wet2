@@ -11,8 +11,7 @@ template<class T>
 class RankTree{
 private:
     RankNode<T>* root;
-
-
+    int size;
 public:
     RankTree(bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& pt1, const T& pt2));
     explicit RankTree(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2));
@@ -29,7 +28,7 @@ public:
     StatusType remove(const T& val);
 
     output_t<int> rank(const T &value);
-
+    output_t<T*> getIthRanked(int i);
 
     //to delete:
     void print2D();
@@ -40,12 +39,12 @@ public:
 };
 
 template<class T>
-RankTree<T>::RankTree(bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2)) {
+RankTree<T>::RankTree(bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2)) : size(0) {
     this->root = new RankNode<T>(isLarger, isEqual);
 }
 
 template<class T>
-RankTree<T>::RankTree(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2)) {
+RankTree<T>::RankTree(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2)) : size(1) {
     this->root = new RankNode<T>(key,isLarger, isEqual);
 }
 
@@ -102,22 +101,33 @@ int RankTree<T>::getH() {
 template<class T>
 StatusType RankTree<T>::insert(const T &val) {
     output_t<RankNode<T>*> output = this->root->insert(val);
-    if(output.status()==StatusType::SUCCESS)
+    if(output.status()==StatusType::SUCCESS) {
         this->root = output.ans();
+        size++;
+    }
     return output.status();
 }
 
 template<class T>
 StatusType RankTree<T>::remove(const T &val) {
     output_t<RankNode<T>*> output = this->root->remove(val);
-    if(output.status()==StatusType::SUCCESS)
+    if(output.status()==StatusType::SUCCESS) {
         this->root = output.ans();
+        size--;
+    }
     return output.status();
 }
 
 template<class T>
 output_t<int> RankTree<T>::rank(const T &value) {
     return this->root->rank(value);
+}
+
+template<class T>
+output_t<T*> RankTree<T>::getIthRanked(int i) {
+    if(i<0||i>=this->size)
+        return StatusType::INVALID_INPUT;
+    return this->root->getIthRanked(i);
 }
 
 
