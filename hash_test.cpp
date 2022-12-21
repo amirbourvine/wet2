@@ -13,11 +13,11 @@ bool isEqual(const int& t1, const int& t2){
 int main(){
     Hash_Table<int> hash(isEqual);
     for(int i = 0; i<37; i++){
-        hash.insert(5, 2);
+        hash.insert(i*i+5, i+1);
         hash.printHash();
     }
-    if(hash.get(37,5).status()==StatusType::SUCCESS){
-        cout<<"SUCCESS: " << hash.get(37,5).ans()<<endl;
+    if(hash.get(31,905).status()==StatusType::SUCCESS){
+        cout<<"SUCCESS: " << hash.get(31,905).ans()<<endl;
     }
     else{
         cout<<"FAILURE"<<endl;

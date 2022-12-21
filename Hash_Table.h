@@ -8,11 +8,14 @@
 #include "wet2util.h"
 #include <iostream>
 #include <memory>
+#include <cmath>
 
 using namespace std;
 
-const static int INITIAL_SIZE = 7;
-const static int C = 2;
+#define INITIAL_SIZE 7
+#define C 2
+#define ALPHA ((sqrt(5)-1)/2)
+
 
 template <class T>//T-values
 struct hash_obj{
@@ -30,8 +33,6 @@ private:
     bool (*isEqual)(const T& t1, const T& t2);
 
     StatusType increaseSize();
-    bool isPrime(int num);
-    int nextPrime(int start);
 
     int hash(int key, int size, int iteration);
     StatusType insertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj);
@@ -67,28 +68,8 @@ Hash_Table<T>::~Hash_Table() {
 }
 
 template<class T>
-bool Hash_Table<T>::isPrime(int num) {
-    for(int i = 2; i*i<=num; i++){
-        if(num%i==0)
-            return false;
-    }
-    return true;
-}
-
-template<class T>
-int Hash_Table<T>::nextPrime(int start) {
-    int temp = start;
-    while(true){
-        if(isPrime(temp)){
-            return temp;
-        }
-        temp++;
-    }
-}
-
-template<class T>
 StatusType Hash_Table<T>::increaseSize() {
-    int new_size = nextPrime((this->size)*2);
+    int new_size = this->size*2 + 1;
     hash_obj<T>* temp = new hash_obj<T>[new_size];
     if(temp == nullptr){
         return StatusType::ALLOCATION_ERROR;
@@ -105,6 +86,7 @@ StatusType Hash_Table<T>::increaseSize() {
         obj.val = this->arr[i].val;
         st = insertAux(temp, new_size, obj);
         if(st!=StatusType::SUCCESS){
+            delete[] temp;
             return st;
         }
         obj.val = T{};
@@ -120,20 +102,11 @@ StatusType Hash_Table<T>::increaseSize() {
 
 template<class T>
 int Hash_Table<T>::hash(int key, int arr_size, int iteration) {
-    int h = key % arr_size;
-    if(h<0){
-        h+=arr_size;
-    }
-    int temp = key%(arr_size-C);
-    if(temp<0){
-        temp+=(arr_size-C);
-    }
-    int r = 1 + temp;
-    temp = (h + iteration*r) % arr_size;
-    if(temp<0){
-        temp+=arr_size;
-    }
-    return temp;
+    double temp = (key*ALPHA);
+    double waste;
+    double frac = modf(temp, &waste);
+    int h = floor(arr_size*frac);
+    return (h+iteration)%arr_size;
 }
 
 template<class T>
