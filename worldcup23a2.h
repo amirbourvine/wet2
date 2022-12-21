@@ -19,14 +19,16 @@
 #include "Team.h"
 #include "Player.h"
 #include "Union_Find.h"
-
+#include "RankTree.h"
 
 class world_cup_t {
 private:
-	//
-	// Here you may add anything you want
-	//
-	
+    unique_ptr<RankTree<shared_ptr<Team>>> teams_id;
+    unique_ptr<RankTree<shared_ptr<Team>>> teams_ability;
+    unique_ptr<Union_Find> uf;
+    int active_teams;
+
+
 public:
 	// <DO-NOT-MODIFY> {
 	

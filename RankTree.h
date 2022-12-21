@@ -16,7 +16,7 @@ public:
     RankTree(bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& pt1, const T& pt2));
     explicit RankTree(const T& key, bool (*isLarger)(const T& t1, const T& t2), bool (*isEqual)(const T& t1, const T& t2));
     RankTree(const RankTree<T>& other) = delete;
-    RankTree<T>& operator=(const RankTree<T>& other) = delete;
+    RankTree<T>& operator=(RankTree<T> *other) = delete;
     ~RankTree();
 
     output_t<bool> isLeaf();
