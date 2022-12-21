@@ -47,6 +47,8 @@ public:
 
     output_t<int> calcGamesPlayed(int playerId);
     output_t<permutation_t> calcPartialPermutation(int playerId);
+    output_t<shared_ptr<Node>> getPlayer(int playerId);
+
 
     void print();
 };

@@ -119,7 +119,7 @@ StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_pt
     }
 
     if(occupiedSet != nullptr) {
-        node->valgames -= node->team->getGamesPlayedAsTeam();
+        node->valgames -= node->team->getGamesPlayedAsTeam() + occupiedSet->valgames;
         if(unite(node, occupiedSet) != StatusType::SUCCESS)
             return unite(node, occupiedSet);
     }
@@ -164,6 +164,19 @@ shared_ptr<Team> Union_Find::findaux(shared_ptr<Node>& start){
 
     return set->team;
 }
+
+output_t<shared_ptr<Node>> Union_Find::getPlayer(int playerId){
+    shared_ptr<Node> demoPlayer = make_shared<Node>(
+            make_shared<Player>(playerId),
+            make_shared<Team>(INVALID_TEAM_ID));
+
+    output_t<shared_ptr<Node>> out1 = nodes.get(demoPlayer, playerId);
+    if(out1.status() != StatusType::SUCCESS)
+        return out1.status();
+
+    return out1.ans();
+}
+
 output_t<shared_ptr<Team>> Union_Find::find(int playerId){
     //Find player in array
     shared_ptr<Node> demoPlayer = make_shared<Node>(
@@ -196,6 +209,7 @@ output_t<int> Union_Find::calcGamesPlayed(int playerId){
         gamesPlayed += node->valgames;
         node = node->next;
     }
+    gamesPlayed += player->team->getGamesPlayedAsTeam();
 
     findaux(player);
 

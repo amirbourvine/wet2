@@ -34,6 +34,10 @@ world_cup_t::~world_cup_t()
 
 StatusType world_cup_t::add_team(int teamId)
 {
+    if(teamId<=0){
+        return StatusType::INVALID_INPUT;
+    }
+
     StatusType st;
 	shared_ptr<Team> new_team(new Team(teamId));
     st = this->teams_id->insert(new_team);
@@ -50,6 +54,9 @@ StatusType world_cup_t::add_team(int teamId)
 
 StatusType world_cup_t::remove_team(int teamId)
 {
+    if(teamId<=0){
+        return StatusType::INVALID_INPUT;
+    }
     StatusType st;
     shared_ptr<Team> temp(new Team(teamId));//will be deleted automatically
     output_t<RankNode<std::shared_ptr<Team>>*> output = this->teams_id->find(temp);
@@ -79,6 +86,9 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
                                    const permutation_t &spirit, int gamesPlayed,
                                    int ability, int cards, bool goalKeeper)
 {
+    if(playerId<=0 || teamId<=0 || !spirit.isvalid() || gamesPlayed<0 || cards<0){
+        return StatusType::INVALID_INPUT;
+    }
     StatusType st;
 
 	shared_ptr<Player> player(new Player(playerId, spirit, ability, cards, goalKeeper));
@@ -162,13 +172,34 @@ output_t<int> world_cup_t::play_match(int teamId1, int teamId2)
 
 output_t<int> world_cup_t::num_played_games_for_player(int playerId)
 {
-	// TODO: Your code goes here
-	return 22;
+    if(playerId<=0){
+        return StatusType::INVALID_INPUT;
+    }
+	return this->uf->calcGamesPlayed(playerId);
 }
 
 StatusType world_cup_t::add_player_cards(int playerId, int cards)
 {
-	// TODO: Your code goes here
+    if(playerId<=0 || cards<0){
+        return StatusType::INVALID_INPUT;
+    }
+
+	output_t<shared_ptr<Node>> temp = this->uf->getPlayer(playerId);
+    if(temp.status()!=StatusType::SUCCESS)
+        return temp.status();
+    shared_ptr<Node> player = temp.ans();
+
+    output_t<shared_ptr<Team>> output = this->uf->find(playerId);
+    if(output.status()!=StatusType::SUCCESS)
+        return output.status();
+    shared_ptr<Team> team = output.ans();
+
+    if(!team->isActive()){
+        return StatusType::FAILURE;
+    }
+
+    player->player->setCards( player->player->getCards()+cards);
+
 	return StatusType::SUCCESS;
 }
 
