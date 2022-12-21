@@ -7,6 +7,7 @@
 
 #include "wet2util.h"
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -28,7 +29,7 @@ private:
 
     output_t<RankNode<T>*> insertaux(RankNode<T>* to_insert, RankNode<T> *root);
     output_t<RankNode<T>*> findaux(const T& val, RankNode<T>* root);
-    output_t<T*> getIthRankedaux(RankNode<T>* root, int i);
+    output_t<shared_ptr<T>> getIthRankedaux(RankNode<T>* root, int i);
     void updateH(RankNode<T>* root);
     void fixVal();
     void updateDuringInsert();
@@ -64,7 +65,7 @@ public:
     output_t<RankNode<T>*> insert(const T& val);
     output_t<RankNode<T>*> remove(const T& val);
 
-    output_t<T*> getIthRanked(int i);
+    output_t<shared_ptr<T>> getIthRanked(int i);
 
     void updateVal();
 
@@ -808,13 +809,13 @@ void RankNode<T>::fixVal() {
 }
 
 template<class T>
-output_t<T*> RankNode<T>::getIthRanked(int i) {
+output_t<shared_ptr<T>> RankNode<T>::getIthRanked(int i) {
     //first index:0
     return getIthRankedaux(this,i);
 }
 
 template<class T>
-output_t<T*> RankNode<T>::getIthRankedaux(RankNode<T>* root, int i) {
+output_t<shared_ptr<T>> RankNode<T>::getIthRankedaux(RankNode<T>* root, int i) {
     if(root== nullptr){
         return StatusType::FAILURE;
     }

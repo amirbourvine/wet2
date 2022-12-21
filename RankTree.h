@@ -28,7 +28,7 @@ public:
     StatusType remove(const T& val);
 
     output_t<int> rank(const T &value);
-    output_t<T*> getIthRanked(int i);
+    output_t<shared_ptr<T>> getIthRanked(int i);
 
     //to delete:
     void print2D();
@@ -124,9 +124,9 @@ output_t<int> RankTree<T>::rank(const T &value) {
 }
 
 template<class T>
-output_t<T*> RankTree<T>::getIthRanked(int i) {
+output_t<shared_ptr<T>> RankTree<T>::getIthRanked(int i) {
     if(i<0||i>=this->size)
-        return StatusType::INVALID_INPUT;
+        return StatusType::FAILURE;
     return this->root->getIthRanked(i);
 }
 
