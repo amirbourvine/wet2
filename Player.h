@@ -14,6 +14,9 @@ class Team;
 
 using namespace std;
 
+const static int INVALID_PLAYER_ID = -1;
+
+
 class Player {
 private:
     int playerId;

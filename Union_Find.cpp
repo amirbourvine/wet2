@@ -107,15 +107,12 @@ StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_pt
     shared_ptr<Node> occupiedSet = nullptr;
 
     shared_ptr<Node> demoTeam(new Node(
-            make_shared<Player>(-1),
+            make_shared<Player>(INVALID_PLAYER_ID),
             team));
 
     output_t<shared_ptr<Node>> out = sets.get(demoTeam, team->getTeamId());
     if(out.status() == StatusType::SUCCESS) {
         occupiedSet = out.ans();
-        //This line is meant to prevent from regarding the temporary new set
-        // as the same team it's being united into
-        node->team = std::make_shared<Team>(INVALID_TEAM_ID);
     }
 
     if(occupiedSet != nullptr) {
