@@ -108,6 +108,8 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
 
     team->add_player(player);
 
+    //we assume that the team spirit was updated before (line 109)
+    //so the spirit fot player needs to be the current team spirit
     this->uf->makeSet(player, team, gamesPlayed);
 
     st = this->teams_ability->insert(team);

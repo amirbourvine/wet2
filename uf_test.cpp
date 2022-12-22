@@ -27,17 +27,22 @@ int main(){
     shared_ptr<Player> p4(new Player (4, per1, 0, 0, false));
     shared_ptr<Player> p5(new Player (5, per1, 0, 0, false));
 
+
     t1->add_player(p1);
     uf.makeSet(p1, t1, 1);
 
     t2->add_player(p2);
     uf.makeSet(p2, t2, 3);
 
+
     t3->add_player(p3);
     uf.makeSet(p3, t3, 9);
 
     t4->add_player(p4);
     uf.makeSet(p4, t4, 17);
+
+    cout << uf.calcPartialPermutation(4).ans() << "\n";
+
     t4->add_player(p5);
     uf.makeSet(p5, t4, 17);
 
@@ -45,8 +50,6 @@ int main(){
     uf.printHashTeams();
     cout<<"****************************************"<<endl;
     uf.print();
-
-    StatusType st;
 
     uf.uniteSets(2, 1);
     t2->addToSpirit(t1->getSpirit());
@@ -66,7 +69,8 @@ int main(){
     cout<<"****************************************"<<endl;
     uf.print();
 
-    st = uf.uniteSets(4, 3);
+
+    uf.uniteSets(4, 3);
     t4->addToSpirit(t3->getSpirit());
     t4->addToPlayersCount(t3->getPlayersCount());
 
@@ -75,11 +79,8 @@ int main(){
     cout<<"****************************************"<<endl;
     uf.print();
 
-//    cout << uf.calcPartialPermutation(5).ans() << "\n";
-//
-//    uf.print();
-//
-//    cout << uf.calcPartialPermutation(5).ans() << "\n";
+    cout << uf.calcPartialPermutation(1).ans() << "\n";
+    uf.print();
 
     return 0;
 }

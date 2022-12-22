@@ -124,11 +124,12 @@ StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_pt
 
     if(occupiedSet != nullptr) {
         //Fix val games
-        node->valgames -= node->team->getGamesPlayedAsTeam() + occupiedSet->valgames;
+        node->valgames -= occupiedSet->valgames;
 
         //Fix permutation track
+        //we assume that team spirit was already updated
         node->permutationTrack = occupiedSet->permutationTrack.inv() *
-                occupiedSet->team->getSpirit() * node->permutationTrack;
+                occupiedSet->team->getSpirit();
 
         //Fix sets
         node->team = nullptr;
@@ -218,12 +219,15 @@ output_t<int> Union_Find::calcGamesPlayed(int playerId){
     //Calc games played
     int gamesPlayed = 0;
     shared_ptr<Node> node = player;
+    shared_ptr<Node> keep;
+
     while(node != nullptr) {
         gamesPlayed += node->valgames;
+        keep = node;
         node = node->next;
     }
-    gamesPlayed += player->team->getGamesPlayedAsTeam();
 
+    gamesPlayed += keep->team->getGamesPlayedAsTeam();
     findaux(player);
 
     return gamesPlayed;
