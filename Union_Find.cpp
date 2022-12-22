@@ -119,9 +119,18 @@ StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_pt
     }
 
     if(occupiedSet != nullptr) {
+        //Fix val games
         node->valgames -= node->team->getGamesPlayedAsTeam() + occupiedSet->valgames;
-        if(unite(node, occupiedSet) != StatusType::SUCCESS)
-            return unite(node, occupiedSet);
+
+        //Fix permutation track
+        node->permutationTrack = occupiedSet->permutationTrack.inv() *
+                occupiedSet->team->getSpirit() * node->permutationTrack;
+
+        //Fix sets
+        node->team = nullptr;
+        node->next = occupiedSet;
+
+        return StatusType::SUCCESS;
     }
     else{
         sets.insert(node->team->getTeamId(), node);
