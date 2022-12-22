@@ -15,6 +15,9 @@ bool areTeamsEqual(const shared_ptr<Node>& t1, const shared_ptr<Node>& t2){
     if(t1 == nullptr|| t2 == nullptr)
         return false;
 
+    if(t1->team == nullptr|| t2->team == nullptr)
+        return false;
+
     return t1->team->getTeamId() == t2->team->getTeamId() &&
         t1->team->isActive() && t2->team->isActive();
 }
@@ -23,7 +26,7 @@ Union_Find::Union_Find():
     sets(Hash_Table<shared_ptr<Node>>(areTeamsEqual))
 {}
 
-StatusType Union_Find::unite(const shared_ptr<Node>& fromSet, const shared_ptr<Node>& toSet){
+StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet){
     if(fromSet->team == nullptr || toSet->team == nullptr)
         return StatusType::FAILURE;
 
@@ -59,7 +62,10 @@ StatusType Union_Find::unite(const shared_ptr<Node>& fromSet, const shared_ptr<N
     toSet->permutationTrack = fromSet->permutationTrack.inv() * toSet->permutationTrack;
 
     //Fix sets
-    toSet->team->setNotActive();
+    //swap between from and to, inorder to keep the hash in the right order
+    this->sets.swap(fromSet, toSet, fromSet->team->getTeamId(), toSet->team->getTeamId());
+
+    fromSet->team->setNotActive();
     fromSet->team = toSet->team;
     toSet->team = nullptr;
     toSet->next = fromSet;
@@ -87,9 +93,10 @@ StatusType Union_Find::uniteSets(int teamId1, int teamId2){
     output_t<shared_ptr<Node>> out2 = sets.get(demoTeam, teamId2);
     if(out2.status() != StatusType::SUCCESS)
         return out2.status();
+
     shared_ptr<Node> set2 = out2.ans();
 
-    unite(set1, set2);
+    unite(set2, set1);
 
     return StatusType::SUCCESS;
 }
@@ -274,14 +281,19 @@ void Union_Find::print(){
     delete[] setsArr;
 }
 
-
-
-
-
-
-
-
-
-
-
+void Union_Find::printHashTeams() {
+    cout << "ARR_SIZE: " << this->sets.getSize() <<endl;
+    cout << "NUM_OBJ: " << this->sets.getObjNum() <<endl;
+    cout << "ARR:" <<endl;
+    shared_ptr<Node>* arr = this->sets.returnArray();
+    for(int i = 0; i<this->sets.getSize(); i++){
+        if(arr[i]!= nullptr && arr[i]->team!= nullptr)
+            cout<<arr[i]->team->getTeamId()<<", ";
+        if(arr[i] == nullptr)
+            cout<<"NULL, ";
+        if(arr[i] != nullptr && arr[i]->team == nullptr)
+            cout<<"DELETED, ";
+    }
+    cout<<endl;
+}
 

@@ -26,13 +26,17 @@ typedef struct Node{
         this->permutationTrack = permutationTrack;
         next = nullptr;
     }
+
+    Node& operator=(const Node& other) = default;
+    Node(const Node& other) = default;
+
 } Node;
 
 class Union_Find {
     Hash_Table<shared_ptr<Node>> nodes;
     Hash_Table<shared_ptr<Node>> sets;
 
-    StatusType unite(const shared_ptr<Node>& set1, const shared_ptr<Node>& set2);
+    StatusType unite(shared_ptr<Node>& set1, shared_ptr<Node>& set2);
     shared_ptr<Team> findaux(shared_ptr<Node>& start);
 
 public:
@@ -51,6 +55,7 @@ public:
 
 
     void print();
+    void printHashTeams();
 };
 
 

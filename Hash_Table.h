@@ -36,7 +36,8 @@ private:
 
     int hash(int key, int size, int iteration);
     StatusType insertAux(hash_obj<T> *arr, int arr_size, hash_obj<T> obj);
-    output_t<T> getAux(hash_obj<T> *arr, int arr_size, const T& demo_val, int key);
+    output_t<hash_obj<T>> getAux(hash_obj<T> *arr, int arr_size, const T& demo_val, int key);
+    output_t<hash_obj<T>*> getAddr(hash_obj<T> *arr_, int arr_size, const T& demo_val, int key);
 
 public:
     explicit Hash_Table(bool (*isEqual)(const T& t1, const T& t2));
@@ -44,11 +45,14 @@ public:
     StatusType insert(int key, const T& val);
     output_t<T> get(const T& demo_val, int key);
 
+    StatusType swap(const T &t1, const T& t2, int key1, int key2);
 
     //to-delete
     void printHash();
     T* returnNarrowedArray();
+    T* returnArray();
     int getObjNum() const;
+    int getSize() const;
 };
 
 template<class T>
@@ -149,15 +153,18 @@ output_t<T> Hash_Table<T>::get(const T& demo_val, int key) {
     if(this->arr==nullptr){
         return StatusType::FAILURE;
     }
-    return getAux(this->arr, this->size, demo_val, key);
+    output_t<hash_obj<T>> output = getAux(this->arr, this->size, demo_val, key);
+    if(output.status()!=StatusType::SUCCESS)
+        return output.status();
+    return output.ans().val;
 }
 
 template<class T>
-output_t<T> Hash_Table<T>::getAux(hash_obj<T> *arr_, int arr_size, const T& demo_val, int key) {
+output_t<hash_obj<T>> Hash_Table<T>::getAux(hash_obj<T> *arr_, int arr_size, const T& demo_val, int key) {
     int iteration = 0;
     while(iteration<arr_size){
         if(this->isEqual(arr_[hash(key, arr_size, iteration)].val, demo_val)){
-            return arr_[hash(key, arr_size, iteration)].val;
+            return arr_[hash(key, arr_size, iteration)];
         }
         if(arr_[hash(key, arr_size, iteration)].val == T{}){
             return StatusType::FAILURE;
@@ -166,6 +173,22 @@ output_t<T> Hash_Table<T>::getAux(hash_obj<T> *arr_, int arr_size, const T& demo
     }
     return StatusType::FAILURE;
 }
+
+template<class T>
+output_t<hash_obj<T>*> Hash_Table<T>::getAddr(hash_obj<T> *arr_, int arr_size, const T& demo_val, int key) {
+    int iteration = 0;
+    while(iteration<arr_size){
+        if(this->isEqual(arr_[hash(key, arr_size, iteration)].val, demo_val)){
+            return &arr_[hash(key, arr_size, iteration)];
+        }
+        if(arr_[hash(key, arr_size, iteration)].val == T{}){
+            return StatusType::FAILURE;
+        }
+        iteration++;
+    }
+    return StatusType::FAILURE;
+}
+
 
 template<class T>
 void Hash_Table<T>::printHash() {
@@ -192,8 +215,55 @@ T* Hash_Table<T>::returnNarrowedArray(){
 }
 
 template<class T>
+T* Hash_Table<T>::returnArray(){
+    T* output(new T[this->size]);
+    int count = 0;
+    for(int i = 0; i < this->size; i++) {
+        output[i] = this->arr[i].val;
+    }
+    return output;
+}
+
+template<class T>
 int Hash_Table<T>::getObjNum() const{
     return objNum;
+}
+
+template<class T>
+int Hash_Table<T>::getSize() const{
+    return size;
+}
+
+template<class T>
+StatusType Hash_Table<T>::swap(const T &t1, const T& t2, int key1, int key2) {
+    output_t<hash_obj<T>> output1 = this->getAux(this->arr, this->size, t1, key1);
+    if(output1.status()!=StatusType::SUCCESS){
+        return output1.status();
+    }
+    hash_obj<T> obj1 = output1.ans();
+
+    output_t<hash_obj<T>> output2 = this->getAux(this->arr, this->size, t2, key2);
+    if(output2.status()!=StatusType::SUCCESS){
+        return output2.status();
+    }
+    hash_obj<T> obj2 = output2.ans();
+
+    output_t<hash_obj<T>*> output11 = this->getAddr(this->arr, this->size, t1, key1);
+    if(output11.status()!=StatusType::SUCCESS){
+        return output11.status();
+    }
+    hash_obj<T>* addr1 = output11.ans();
+
+    output_t<hash_obj<T>*> output21 = this->getAddr(this->arr, this->size, t2, key2);
+    if(output21.status()!=StatusType::SUCCESS){
+        return output21.status();
+    }
+    hash_obj<T>* addr2 = output21.ans();
+
+    *addr1 = obj2;
+    *addr2 = obj1;
+
+    return StatusType::SUCCESS;
 }
 
 
