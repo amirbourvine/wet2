@@ -297,3 +297,22 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
 
 	return StatusType::SUCCESS;
 }
+
+void world_cup_t::printTeams_id() {
+    this->teams_id->print2D();
+}
+
+void world_cup_t::printTeams_ability() {
+    this->teams_ability->print2D();
+}
+
+int world_cup_t::getActiveTeams() const {
+    return this->active_teams;
+}
+
+void world_cup_t::print_uf() {
+    cout<<"HASH TEAMS:"<<endl;
+    this->uf->printHashTeams();
+    cout<<"UF:"<<endl;
+    this->uf->print();
+}

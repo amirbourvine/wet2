@@ -60,6 +60,12 @@ public:
 	StatusType buy_team(int teamId1, int teamId2);
 	
 	// } </DO-NOT-MODIFY>
+
+    //TO DELETE:
+    void printTeams_id();
+    void printTeams_ability();
+    int getActiveTeams() const;
+    void print_uf();
 };
 
 #endif // WORLDCUP23A1_H_

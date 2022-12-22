@@ -824,12 +824,16 @@ output_t<shared_ptr<T>> RankNode<T>::getIthRankedaux(RankNode<T>* root, int i) {
     }
 
     if(root->left == nullptr){
-        if(i==0)
-            return &(root->key);
+        if(i==0) {
+            shared_ptr<T> ptr = make_shared<T>(root->key);
+            return ptr;
+        }
         return getIthRankedaux(root->right, i-1);
     }
-    if (root->left->val == i)
-        return &(root->key);
+    if (root->left->val == i) {
+        shared_ptr<T> ptr = make_shared<T>(root->key);
+        return ptr;
+    }
     if (root->left->val > i)
         return getIthRankedaux(root->left, i);
     return getIthRankedaux(root->right, i-1-root->left->val);

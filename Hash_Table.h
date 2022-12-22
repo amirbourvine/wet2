@@ -12,9 +12,9 @@
 
 using namespace std;
 
-#define INITIAL_SIZE 7
-#define C 2
-#define ALPHA ((sqrt(5)-1)/2)
+const static int INITIAL_SIZE = 7;
+const static int C = 2;
+const static double ALPHA = ((sqrt(5)-1)/2);
 
 
 template <class T>//T-values
