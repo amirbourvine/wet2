@@ -291,8 +291,14 @@ void Union_Find::printHashTeams() {
     cout << "ARR:" <<endl;
     shared_ptr<Node>* arr = this->sets.returnArray();
     for(int i = 0; i<this->sets.getSize(); i++){
-        if(arr[i]!= nullptr && arr[i]->team!= nullptr)
-            cout<<arr[i]->team->getTeamId()<<", ";
+        if(arr[i]!= nullptr && arr[i]->team!= nullptr) {
+            cout << arr[i]->team->getTeamId();
+            cout<< ";active: ";
+            if(arr[i]->team->isActive())
+                cout<<"true, ";
+            else
+                cout<<"false, ";
+        }
         if(arr[i] == nullptr)
             cout<<"NULL, ";
         if(arr[i] != nullptr && arr[i]->team == nullptr)

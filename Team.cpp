@@ -19,7 +19,9 @@ Team::Team(int teamId) :
 {}
 
 std::ostream& operator<<(std::ostream& os, const Team& t){
-    return os << "TeamId: " << t.teamId;
+    if(t.isActive())
+        return os << "TeamId: " << t.teamId << ", Active:"<<"true";
+    return os << "TeamId: " << t.teamId << ", Active:"<<"false";
     /*return os << "TeamId: " << t.teamId << ", points: " << t.points
         << ", playersCount: " << t.playersCount << ", GoalKeepersAmount: " << t.goalKeepersAmount
         << ", ability: " << t.ability << ", active: " << t.active
