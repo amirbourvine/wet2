@@ -82,7 +82,7 @@ int main(){
     cout<<"****************************GET FROM RANK*******************************"<<endl;
     root->print2D();
 
-    output_t<int*> out1 = root->getIthRanked(2);
+    output_t<shared_ptr<int>> out1 = root->getIthRanked(2);
     if(out1.status()==StatusType::SUCCESS)
         cout<<"ITH RANKED: " << *(out1.ans())<<endl;
     else

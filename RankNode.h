@@ -29,6 +29,8 @@ private:
 
     output_t<RankNode<T>*> insertaux(RankNode<T>* to_insert, RankNode<T> *root);
     output_t<RankNode<T>*> findaux(const T& val, RankNode<T>* root);
+    void find_no_order_aux(const T &value, RankNode<T>* res, RankNode<T>* root_);
+
     output_t<shared_ptr<T>> getIthRankedaux(RankNode<T>* root, int i);
     void updateH(RankNode<T>* root);
     void fixVal();
@@ -62,6 +64,7 @@ public:
     output_t<int> getBF();
 
     output_t<RankNode<T>*> find(const T& val);
+    output_t<RankNode<T>*> find_no_order(const T &value);
     output_t<RankNode<T>*> insert(const T& val);
     output_t<RankNode<T>*> remove(const T& val);
 
@@ -70,6 +73,8 @@ public:
     void updateVal();
 
     output_t<int> rank(const T &value);
+
+    int inorderToArr(RankNode<T> *root_, T **arr, int size, int ind);
 
     //to delete:
     void print2DUtil(RankNode<T>* root, int space);
@@ -838,5 +843,46 @@ output_t<shared_ptr<T>> RankNode<T>::getIthRankedaux(RankNode<T>* root, int i) {
         return getIthRankedaux(root->left, i);
     return getIthRankedaux(root->right, i-1-root->left->val);
 }
+
+template<class T>
+int RankNode<T>::inorderToArr(RankNode<T> *root_, T **arr, int size, int ind) {
+    if(root_ == nullptr){
+        return ind;
+    }
+
+    ind = inorderToArr(root_->left, arr, size, ind);
+    if(ind < size) {
+        arr[ind] = &root_->key;
+        ind++;
+    }
+    else{
+        return ind;
+    }
+
+    return inorderToArr(root_->right, arr, size, ind);
+}
+
+template<class T>
+void RankNode<T>::find_no_order_aux(const T &value, RankNode<T>* res, RankNode<T>* root_) {
+    if(root_ == nullptr){
+        return;
+    }
+    if(this->isEqual(value, root_->key)){
+        res = root_;
+        return;
+    }
+    find_no_order_aux(value,res, root_->left);
+    find_no_order_aux(value,res, root_->right);
+}
+
+template<class T>
+output_t<RankNode<T>*> RankNode<T>::find_no_order(const T &value) {
+    RankNode<T>* res = nullptr;
+    StatusType st = this->find_no_order_aux(value, res, this);
+    if(st!=StatusType::SUCCESS)
+        return st;
+    return res;
+}
+
 
 #endif //DSH2_RANKNODE_H

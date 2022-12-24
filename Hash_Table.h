@@ -13,8 +13,6 @@
 using namespace std;
 
 const static int INITIAL_SIZE = 7;
-const static int C = 2;
-const static double ALPHA = ((sqrt(5)-1)/2);
 
 
 template <class T>//T-values
@@ -39,6 +37,8 @@ private:
     output_t<hash_obj<T>> getAux(hash_obj<T> *arr, int arr_size, const T& demo_val, int key);
     output_t<hash_obj<T>*> getAddr(hash_obj<T> *arr_, int arr_size, const T& demo_val, int key);
 
+
+    static double ALPHA(){return ((sqrt(5)-1)/2);};
 public:
     explicit Hash_Table(bool (*isEqual)(const T& t1, const T& t2));
     ~Hash_Table();
@@ -106,7 +106,7 @@ StatusType Hash_Table<T>::increaseSize() {
 
 template<class T>
 int Hash_Table<T>::hash(int key, int arr_size, int iteration) {
-    double temp = (key*ALPHA);
+    double temp = (key*ALPHA());
     double waste;
     double frac = modf(temp, &waste);
     int h = floor(arr_size*frac);

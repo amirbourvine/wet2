@@ -122,6 +122,7 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
 
 output_t<int> world_cup_t::play_match(int teamId1, int teamId2)
 {
+    int res = -1;
     if(teamId1<=0 || teamId2<=0 || teamId1==teamId2){
         return StatusType::INVALID_INPUT;
     }
@@ -148,28 +149,33 @@ output_t<int> world_cup_t::play_match(int teamId1, int teamId2)
 
     if(power1>power2){
         team1->addPoints(3);
+        res = 1;
     }
     if(power1<power2){
         team2->addPoints(3);
+        res = 3;
     }
     if(power1==power2){
         int strength1 = team1->getSpirit().strength();
         int strength2 = team2->getSpirit().strength();
         if(strength1>strength2){
             team1->addPoints(3);
+            res = 2;
         }
         if(strength1<strength2){
             team2->addPoints(3);
+            res = 4;
         }
         if(strength1==strength2){
             team1->addPoints(1);
             team2->addPoints(1);
+            res = 0;
         }
     }
 
     team1->setGamesPlayedAsTeam(team1->getGamesPlayedAsTeam()+1);
     team2->setGamesPlayedAsTeam(team2->getGamesPlayedAsTeam()+1);
-    return 0;
+    return res;
 }
 
 output_t<int> world_cup_t::num_played_games_for_player(int playerId)
@@ -242,7 +248,7 @@ output_t<int> world_cup_t::get_ith_pointless_ability(int i)
         return output.status();
     }
     shared_ptr<Team> team = *(output.ans());
-    return team->getAbility();
+    return team->getTeamId();
 }
 
 output_t<permutation_t> world_cup_t::get_partial_spirit(int playerId)
