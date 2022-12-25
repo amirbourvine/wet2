@@ -14,6 +14,8 @@ int main(){
 
     shared_ptr<Team> t1(new Team(1));
     t1->setGamesPlayedAsTeam(2);
+
+
     shared_ptr<Player> p1(new Player (1, per1, 0, 0, false));
     shared_ptr<Player> p2(new Player(2, per1, 0, 0, false));
 
@@ -38,16 +40,16 @@ int main(){
     t3->add_player(p3);
     uf.makeSet(p3, t3, 9);
 
+
     t4->add_player(p4);
     uf.makeSet(p4, t4, 17);
 
-    cout << uf.calcPartialPermutation(4).ans() << "\n";
+    //cout << uf.calcPartialPermutation(4).ans() << "\n";
 
     t4->add_player(p5);
     uf.makeSet(p5, t4, 17);
 
-    cout<<"****************************************"<<endl;
-    uf.printHashTeams();
+
     cout<<"****************************************"<<endl;
     uf.print();
 
@@ -55,8 +57,7 @@ int main(){
     t2->addToSpirit(t1->getSpirit());
     t2->addToPlayersCount(t1->getPlayersCount());
 
-    cout<<"****************************************"<<endl;
-    uf.printHashTeams();
+    //uf.printHashTeams();
     cout<<"****************************************"<<endl;
     uf.print();
 
@@ -64,8 +65,7 @@ int main(){
     t3->addToSpirit(t2->getSpirit());
     t3->addToPlayersCount(t2->getPlayersCount());
 
-    cout<<"****************************************"<<endl;
-    uf.printHashTeams();
+    //uf.printHashTeams();
     cout<<"****************************************"<<endl;
     uf.print();
 
@@ -74,12 +74,11 @@ int main(){
     t4->addToSpirit(t3->getSpirit());
     t4->addToPlayersCount(t3->getPlayersCount());
 
-    cout<<"****************************************"<<endl;
-    uf.printHashTeams();
+    //uf.printHashTeams();
     cout<<"****************************************"<<endl;
     uf.print();
 
-    cout << uf.calcPartialPermutation(1).ans() << "\n";
+    cout << uf.calcPartialPermutation(5).ans() << "\n";
     uf.print();
 
     return 0;

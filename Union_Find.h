@@ -2,7 +2,8 @@
 #define DSH2_UNION_FIND_H
 
 #include "Team.h"
-#include "Hash_Table.h"
+//#include "Hash_Table.h"
+#include "Hash_Table_Chain.h"
 
 #include <memory>
 
@@ -33,8 +34,8 @@ typedef struct Node{
 } Node;
 
 class Union_Find {
-    Hash_Table<shared_ptr<Node>> nodes;
-    Hash_Table<shared_ptr<Node>> sets;
+    Hash_Table_Chain<shared_ptr<Node>> nodes;
+    Hash_Table_Chain<shared_ptr<Node>> sets;
 
     StatusType unite(shared_ptr<Node>& set1, shared_ptr<Node>& set2);
     shared_ptr<Team> findaux(shared_ptr<Node>& start);

@@ -21,9 +21,18 @@ bool areTeamsEqual(const shared_ptr<Node>& t1, const shared_ptr<Node>& t2){
     return t1->team->getTeamId() == t2->team->getTeamId() &&
         t1->team->isActive() && t2->team->isActive();
 }
+
+bool isEqual_hashobj1(const hash_obj<shared_ptr<Node>>& n1, const hash_obj<shared_ptr<Node>>& n2){
+    return arePlayersEqual(n1.val, n2.val);
+}
+
+bool isEqual_hashobj2(const hash_obj<shared_ptr<Node>>& n1, const hash_obj<shared_ptr<Node>>& n2){
+    return areTeamsEqual(n1.val, n2.val);
+}
+
 Union_Find::Union_Find():
-    nodes(Hash_Table<shared_ptr<Node>>(arePlayersEqual)),
-    sets(Hash_Table<shared_ptr<Node>>(areTeamsEqual))
+    nodes(Hash_Table_Chain<shared_ptr<Node>>(arePlayersEqual, isEqual_hashobj1)),
+    sets(Hash_Table_Chain<shared_ptr<Node>>(areTeamsEqual, isEqual_hashobj2))
 {}
 
 StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet){
@@ -109,13 +118,16 @@ StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_pt
         return StatusType::FAILURE;
 
     shared_ptr<Node> node(new Node(player, team, player->getSpirit(), gamesPlayed));
+
     nodes.insert(player->getPlayerId(), node);
+
 
     shared_ptr<Node> occupiedSet = nullptr;
 
     shared_ptr<Node> demoTeam(new Node(
             make_shared<Player>(INVALID_PLAYER_ID),
             team));
+
 
     output_t<shared_ptr<Node>> out = sets.get(demoTeam, team->getTeamId());
     if(out.status() == StatusType::SUCCESS) {
@@ -140,7 +152,6 @@ StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_pt
     else{
         sets.insert(node->team->getTeamId(), node);
     }
-
     return StatusType::SUCCESS;
 }
 
@@ -258,16 +269,16 @@ output_t<permutation_t> Union_Find::calcPartialPermutation(int playerId){
 }
 
 void Union_Find::print(){
-    shared_ptr<Node>* setsArr(sets.returnNarrowedArray());
+    hash_obj<shared_ptr<Node>>** setsArr(sets.returnNarrowedArray());
     for(int i = 0; i < sets.getObjNum(); ++i) {
-        if(setsArr[i]->team != nullptr)
-            cout << *(setsArr[i]->team) << "\t";
+        if(setsArr[i]->val->team != nullptr)
+            cout << *(setsArr[i]->val->team) << "\t";
     }
     cout << "\n";
 
-    shared_ptr<Node>* nodesArr(nodes.returnNarrowedArray());
+    hash_obj<shared_ptr<Node>>** nodesArr(nodes.returnNarrowedArray());
     for(int i = 0; i < nodes.getObjNum(); ++i){
-        shared_ptr<Node> temp = nodesArr[i];
+        shared_ptr<Node> temp = nodesArr[i]->val;
         while(temp->next != nullptr){
             std::cout << *(temp->player) << "\t->\t";
             //std::cout << *(temp->player) << ", valgames: " << temp->valgames
@@ -286,24 +297,12 @@ void Union_Find::print(){
 }
 
 void Union_Find::printHashTeams() {
-    cout << "ARR_SIZE: " << this->sets.getSize() <<endl;
-    cout << "NUM_OBJ: " << this->sets.getObjNum() <<endl;
-    cout << "ARR:" <<endl;
-    shared_ptr<Node>* arr = this->sets.returnArray();
-    for(int i = 0; i<this->sets.getSize(); i++){
-        if(arr[i]!= nullptr && arr[i]->team!= nullptr) {
-            cout << arr[i]->team->getTeamId();
-            cout<< ";active: ";
-            if(arr[i]->team->isActive())
-                cout<<"true, ";
-            else
-                cout<<"false, ";
-        }
-        if(arr[i] == nullptr)
-            cout<<"NULL, ";
-        if(arr[i] != nullptr && arr[i]->team == nullptr)
-            cout<<"DELETED, ";
+    cout<<"********SETS********"<<endl;
+    hash_obj<shared_ptr<Node>>** setsArr(sets.returnNarrowedArray());
+    for(int i = 0; i < sets.getObjNum(); ++i) {
+        if(setsArr[i]->val->team != nullptr)
+            cout << *(setsArr[i]->val->team) << "\t";
     }
-    cout<<endl;
+    cout << "\n";
 }
 
