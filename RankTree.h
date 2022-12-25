@@ -24,7 +24,7 @@ public:
     output_t<int> getBF();
 
     output_t<RankNode<T>*> find(const T& val);
-    //output_t<RankNode<T>*> find_no_order(const T& val);
+    output_t<RankNode<T>*> find_no_order(const T& val);
 
     StatusType insert(const T& val);
     StatusType remove(const T& val);
@@ -34,8 +34,8 @@ public:
 
     bool isEmpty(){ return this->size==0;}
 
-    //int inorderToArr(T **arr, int size_);
-    //int getSize(){return this->size;}
+    int inorderToArr(T **arr, int size_);
+    int getSize(){return this->size;}
 
     //to delete:
     void print2D();
@@ -137,15 +137,15 @@ output_t<shared_ptr<T>> RankTree<T>::getIthRanked(int i) {
     return this->root->getIthRanked(i);
 }
 
-//template<class T>
-//int RankTree<T>::inorderToArr(T **arr, int size_) {
-//    return this->root->inorderToArr(this->root, size_, 0);
-//}
-//
-//template<class T>
-//output_t<RankNode<T> *> RankTree<T>::find_no_order(const T &val) {
-//    return this->root->find_no_order(val, this->size);
-//}
+template<class T>
+int RankTree<T>::inorderToArr(T **arr, int size_) {
+    return this->root->inorderToArr(this->root, arr, size_, 0);
+}
+
+template<class T>
+output_t<RankNode<T> *> RankTree<T>::find_no_order(const T &val) {
+    return this->root->find_no_order(val);
+}
 
 
 #endif //WET2_RANKTREE_H

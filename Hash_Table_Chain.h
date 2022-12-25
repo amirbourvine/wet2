@@ -19,33 +19,42 @@ template <class T>//T-values
 struct hash_obj{
     int key;
     T val;
+
+    T& operator*(){
+        return this->val;
+    }
 };
 
+template <class T>
+bool isLarger_hashobj(const hash_obj<T>& n1, const hash_obj<T>& n2){
+    //the order inside each tree doesn't matter
+    return true;
+}
 
 template <class T>//T-values
 class Hash_Table_Chain{
 private:
-    shared_ptr<RankTree<hash_obj<T>>>* arr;//shared for comfort in increaseSize
+    RankTree<hash_obj<T>>* *arr;
     int size;
     int objNum;
 
     bool (*isEqual)(const T& t1, const T& t2);
+    bool (*isEqual_hashobj)(const hash_obj<T>& n1, const hash_obj<T>& n2);
+
 
     StatusType increaseSize();
 
     int hash(int key, int size);
-    StatusType insertAux(shared_ptr<RankTree<hash_obj<T>>> *arr, int arr_size, hash_obj<T> obj);
-    StatusType insert_tree_Aux(shared_ptr<RankTree<hash_obj<T>>> *arr_, int arr_size, shared_ptr<RankTree<hash_obj<T>>> tree);
+    StatusType insertAux(RankTree<hash_obj<T>>* *arr, int arr_size, hash_obj<T> obj);
+    StatusType insert_tree_Aux(RankTree<hash_obj<T>>* *arr_, int arr_size, RankTree<hash_obj<T>>* tree);
 
-    output_t<hash_obj<T>> getAux(shared_ptr<RankTree<hash_obj<T>>> *arr, int arr_size, const T& demo_val, int key);
-    output_t<hash_obj<T>*> getAddr(shared_ptr<RankTree<hash_obj<T>>> *arr_, int arr_size, const T& demo_val, int key);
+    output_t<hash_obj<T>> getAux(RankTree<hash_obj<T>>* *arr, int arr_size, const T& demo_val, int key);
+    output_t<hash_obj<T>*> getAddr(RankTree<hash_obj<T>>* *arr_, int arr_size, const T& demo_val, int key);
 
     static double ALPHA(){return ((sqrt(5)-1)/2);}
 
-    bool isEqual_hashobj(const hash_obj<T>& n1, const hash_obj<T>& n2);
-
 public:
-    explicit Hash_Table_Chain(bool (*isEqual)(const T& t1, const T& t2));
+    explicit Hash_Table_Chain(bool (*isEqual)(const T& t1, const T& t2), bool (*isEqual_hashobj)(const hash_obj<T>& n1, const hash_obj<T>& n2));
     ~Hash_Table_Chain();
     StatusType insert(int key, const T& val);
     output_t<T> get(const T& demo_val, int key);
@@ -58,24 +67,13 @@ public:
     int getSize() const;
 };
 
-template <class T>
-bool Hash_Table_Chain<T>::isEqual_hashobj(const hash_obj<T>& n1, const hash_obj<T>& n2){
-    //the order inside each tree doesn't matter
-    return this->isEqual(n1.val, n2.val);
-}
-
-template <class T>
-bool isLarger_hashobj(const hash_obj<T>& n1, const hash_obj<T>& n2){
-    //the order inside each tree doesn't matter
-    return true;
-}
-
 template<class T>
-Hash_Table_Chain<T>::Hash_Table_Chain(bool (*isEqual)(const T& t1, const T& t2))
-        : size(INITIAL_SIZE), objNum(0), isEqual(isEqual){
-    this->arr = new shared_ptr<RankTree<hash_obj<T>>>[INITIAL_SIZE];
+Hash_Table_Chain<T>::Hash_Table_Chain(bool (*isEqual)(const T& t1, const T& t2),
+                                      bool (*isEqual_hashobj)(const hash_obj<T>& n1, const hash_obj<T>& n2))
+        : size(INITIAL_SIZE), objNum(0), isEqual(isEqual), isEqual_hashobj(isEqual_hashobj){
+    this->arr = new RankTree<hash_obj<T>>*[INITIAL_SIZE];
     for(int i = 0; i<this->size; i++){
-        this->arr[i] = new RankTree<hash_obj<T>>(&isLarger_hashobj, &isEqual_hashobj);
+        this->arr[i] = new RankTree<hash_obj<T>>(isLarger_hashobj, (this->isEqual_hashobj));
     }
 }
 
@@ -87,12 +85,12 @@ Hash_Table_Chain<T>::~Hash_Table_Chain() {
 template<class T>
 StatusType Hash_Table_Chain<T>::increaseSize() {
     int new_size = this->size*2 + 1;
-    auto* temp = new shared_ptr<RankTree<hash_obj<T>>>[new_size];
+    auto* temp = new RankTree<hash_obj<T>>*[new_size];
     if(temp == nullptr){
         return StatusType::ALLOCATION_ERROR;
     }
     for(int i = 0; i<new_size; i++){
-        temp[i] = new RankTree<hash_obj<T>>(&isLarger_hashobj, &isEqual_hashobj);
+        temp[i] = new RankTree<hash_obj<T>>(isLarger_hashobj, this->isEqual_hashobj);
     }
     StatusType st;
     for(int i = 0; i<this->size; i++){
@@ -120,7 +118,7 @@ int Hash_Table_Chain<T>::hash(int key, int arr_size) {
 }
 
 template<class T>
-StatusType Hash_Table_Chain<T>::insert_tree_Aux(shared_ptr<RankTree<hash_obj<T>>> *arr_, int arr_size, shared_ptr<RankTree<hash_obj<T>>> tree) {
+StatusType Hash_Table_Chain<T>::insert_tree_Aux(RankTree<hash_obj<T>>* *arr_, int arr_size, RankTree<hash_obj<T>>* tree) {
     if(arr_==nullptr){
         return StatusType::INVALID_INPUT;
     }
@@ -138,7 +136,7 @@ StatusType Hash_Table_Chain<T>::insert_tree_Aux(shared_ptr<RankTree<hash_obj<T>>
 }
 
 template<class T>
-StatusType Hash_Table_Chain<T>::insertAux(shared_ptr<RankTree<hash_obj<T>>> *arr_, int arr_size, hash_obj<T> obj) {
+StatusType Hash_Table_Chain<T>::insertAux(RankTree<hash_obj<T>>* *arr_, int arr_size, hash_obj<T> obj) {
     if(arr_==nullptr){
         return StatusType::INVALID_INPUT;
     }
@@ -179,14 +177,15 @@ output_t<T> Hash_Table_Chain<T>::get(const T& demo_val, int key) {
 }
 
 template<class T>
-output_t<hash_obj<T>> Hash_Table_Chain<T>::getAux(shared_ptr<RankTree<hash_obj<T>>> *arr_, int arr_size, const T& demo_val, int key) {
+output_t<hash_obj<T>> Hash_Table_Chain<T>::getAux(RankTree<hash_obj<T>>* *arr_, int arr_size, const T& demo_val, int key) {
     if(arr_==nullptr){
         return StatusType::INVALID_INPUT;
     }
     hash_obj<T> obj;
     obj.val = demo_val;
     obj.key = key;
-    output_t<RankNode<hash_obj<T>>*> output = arr_[hash(key, arr_size)]->find_no_order(obj);
+    int index = hash(key, arr_size);
+    output_t<RankNode<hash_obj<T>>*> output = arr_[index]->find_no_order(obj);
 
     if(output.status()!=StatusType::SUCCESS)
         return output.status();
@@ -195,14 +194,14 @@ output_t<hash_obj<T>> Hash_Table_Chain<T>::getAux(shared_ptr<RankTree<hash_obj<T
 }
 
 template<class T>
-output_t<hash_obj<T>*> Hash_Table_Chain<T>::getAddr(shared_ptr<RankTree<hash_obj<T>>> *arr_, int arr_size, const T& demo_val, int key) {
+output_t<hash_obj<T>*> Hash_Table_Chain<T>::getAddr(RankTree<hash_obj<T>>* *arr_, int arr_size, const T& demo_val, int key) {
     if(arr_==nullptr){
         return StatusType::INVALID_INPUT;
     }
     hash_obj<T> obj;
     obj.val = demo_val;
     obj.key = key;
-    output_t<RankNode<hash_obj<T>>*> output = arr_[hash(key, arr_size)]->find(obj);
+    output_t<RankNode<hash_obj<T>>*> output = arr_[hash(key, arr_size)]->find_no_order(obj);
 
     if(output.status()!=StatusType::SUCCESS)
         return output.status();
@@ -217,7 +216,7 @@ void Hash_Table_Chain<T>::printHash() {
     cout << "NUM_OBJ: " << this->objNum <<endl;
     cout << "ARR:" <<endl;
     for(int i = 0; i<this->size; i++){
-        cout<<"INDEX "<<i<<":"<<endl;
+        cout<<"*****************INDEX "<<i<<":*****************"<<endl;
         this->arr[i]->print2D();
     }
     cout<<endl;
