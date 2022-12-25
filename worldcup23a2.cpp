@@ -327,7 +327,7 @@ int world_cup_t::getActiveTeams() const {
 
 void world_cup_t::print_uf() {
     cout<<"HASH TEAMS:"<<endl;
-    this->uf->printHashTeams();
+    //this->uf->printHashTeams();
     cout<<"UF:"<<endl;
     this->uf->print();
 }
