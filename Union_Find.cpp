@@ -18,8 +18,7 @@ bool areTeamsEqual(const shared_ptr<Node>& t1, const shared_ptr<Node>& t2){
     if(t1->team == nullptr|| t2->team == nullptr)
         return false;
 
-    return t1->team->getTeamId() == t2->team->getTeamId() &&
-        t1->team->isActive() && t2->team->isActive();
+    return t1->team->getTeamId() == t2->team->getTeamId();
 }
 
 bool isTeamsGreater(const shared_ptr<Node>& t1, const shared_ptr<Node>& t2){
@@ -29,8 +28,7 @@ bool isTeamsGreater(const shared_ptr<Node>& t1, const shared_ptr<Node>& t2){
     if(t1->team == nullptr|| t2->team == nullptr)
         return false;
 
-    return t1->team->getTeamId() > t2->team->getTeamId() &&
-           t1->team->isActive() && t2->team->isActive();
+    return t1->team->getTeamId() > t2->team->getTeamId();
 }
 
 bool isEqual_hashobj1(const hash_obj<shared_ptr<Node>>& n1, const hash_obj<shared_ptr<Node>>& n2){
@@ -39,7 +37,7 @@ bool isEqual_hashobj1(const hash_obj<shared_ptr<Node>>& n1, const hash_obj<share
 
 Union_Find::Union_Find():
     nodes(Hash_Table_Chain<shared_ptr<Node>>(arePlayersEqual, isEqual_hashobj1)),
-    sets(new RankTree<shared_ptr<Node>>(&isTeamsGreater, &areTeamsEqual))
+    sets(new RankTree<shared_ptr<Node>>(isTeamsGreater, areTeamsEqual))
 {}
 
 StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet){
@@ -113,6 +111,13 @@ StatusType Union_Find::uniteSets(int teamId1, int teamId2){
         return out2.status();
 
     shared_ptr<Node> set2 = *out2.ans();
+
+    if(set2->team->getPlayersCount()>0) {
+        StatusType st = this->remove_from_sets(set2->team);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+    }
 
     unite(set2, set1);
 
@@ -304,5 +309,11 @@ void Union_Find::print(){
     }
 
     delete[] nodesArr;
+}
+
+StatusType Union_Find::remove_from_sets(shared_ptr<Team>& team) {
+    shared_ptr<Node> demoTeam(new Node(
+            make_shared<Player>(-1), team));
+    return this->sets->remove(demoTeam);
 }
 

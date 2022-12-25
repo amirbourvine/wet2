@@ -2,7 +2,6 @@
 #define DSH2_UNION_FIND_H
 
 #include "Team.h"
-//#include "Hash_Table.h"
 #include "Hash_Table_Chain.h"
 #include "RankTree.h"
 
@@ -54,6 +53,8 @@ public:
     output_t<int> calcGamesPlayed(int playerId);
     output_t<permutation_t> calcPartialPermutation(int playerId);
     output_t<shared_ptr<Node>> getPlayer(int playerId);
+
+    StatusType remove_from_sets(shared_ptr<Team>& team);
 
 
     void print();

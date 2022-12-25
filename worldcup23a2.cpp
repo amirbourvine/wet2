@@ -75,6 +75,13 @@ StatusType world_cup_t::remove_team(int teamId)
         return st;
     }
 
+    if(team->getPlayersCount()>0) {
+        st = this->uf->remove_from_sets(team);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+    }
+
     this->active_teams--;
 
     team->setNotActive();
@@ -306,11 +313,24 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
 
     this->teams_ability->insert(team1);
 
-    st = this->remove_team(teamId2);
-    if(st!=StatusType::SUCCESS)
-        return st;
+//    st = this->remove_team(teamId2);
+//    if(st!=StatusType::SUCCESS)
+//        return st;
 
-	return StatusType::SUCCESS;
+
+    st = this->teams_id->remove(team2);
+    if(st!=StatusType::SUCCESS){
+        return st;
+    }
+
+    st = this->teams_ability->remove(team2);
+    if(st!=StatusType::SUCCESS){
+        return st;
+    }
+
+    this->active_teams--;
+
+    return StatusType::SUCCESS;
 }
 
 void world_cup_t::printTeams_id() {
