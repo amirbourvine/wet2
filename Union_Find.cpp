@@ -47,7 +47,16 @@ StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet)
     if(fromSet->team->getTeamId() == toSet->team->getTeamId()){
         return StatusType::FAILURE;
     }
+
+
     if(fromSet->team->getPlayersCount() <= toSet->team->getPlayersCount()){
+        if(fromSet->team->getPlayersCount()>0) {
+            StatusType st = this->remove_from_sets(fromSet->team);
+            if (st != StatusType::SUCCESS) {
+                return st;
+            }
+        }
+
         //Fix val games
         toSet->valgames = toSet->valgames + toSet->team->getGamesPlayedAsTeam();
         toSet->team->setGamesPlayedAsTeam(0);
@@ -65,6 +74,20 @@ StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet)
         return StatusType::SUCCESS;
     }
 
+
+    if(toSet->team->getPlayersCount()>0) {
+        StatusType st = this->remove_from_sets(toSet->team);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+    }
+    if(fromSet->team->getPlayersCount()>0) {
+        StatusType st = this->remove_from_sets(fromSet->team);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+    }
+
     //Fix val games
     fromSet->valgames = fromSet->valgames + fromSet->team->getGamesPlayedAsTeam();
     toSet->valgames = toSet->valgames + toSet->team->getGamesPlayedAsTeam() - fromSet->valgames;
@@ -78,30 +101,18 @@ StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet)
     //swap between from and to, in order to keep the hash in the right order
     //this->sets.swap(fromSet, toSet, fromSet->team->getTeamId(), toSet->team->getTeamId());
 
-    cout<<this->findTeam(23)<<endl;
-
     fromSet->team->setNotActive();
     fromSet->team = toSet->team;
     toSet->team = nullptr;
     toSet->next = fromSet;
-
-    cout<<this->findTeam(23)<<endl;
-
     //re-insert fromSet into sets, because id of team changed
+
     if(fromSet->team->getPlayersCount()>0) {
-        StatusType st = this->remove_from_sets(fromSet->team);
+        StatusType st = this->insert_to_sets(fromSet);
         if (st != StatusType::SUCCESS) {
-            cout<<"HERE1"<<endl;
-            return st;
-        }
-        st = this->insert_to_sets(fromSet);
-        if (st != StatusType::SUCCESS) {
-            cout<<"HERE2"<<endl;
             return st;
         }
     }
-
-    cout<<this->findTeam(23)<<endl;
 
     return StatusType::SUCCESS;
 }
@@ -130,13 +141,6 @@ StatusType Union_Find::uniteSets(int teamId1, int teamId2){
         return out2.status();
 
     shared_ptr<Node> set2 = *out2.ans();
-
-    if(set2->team->getPlayersCount()>0) {
-        StatusType st = this->remove_from_sets(set2->team);
-        if (st != StatusType::SUCCESS) {
-            return st;
-        }
-    }
 
     unite(set2, set1);
 

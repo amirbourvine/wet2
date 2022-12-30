@@ -277,6 +277,7 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
     if(teamId1<=0 || teamId2<=0 || teamId1==teamId2){
         return StatusType::INVALID_INPUT;
     }
+
     shared_ptr<Team> temp2(new Team(teamId2));//will be deleted automatically
     output_t<RankNode<std::shared_ptr<Team>>*> output2 = this->teams_id->find(temp2);
     if(output2.status()!=StatusType::SUCCESS){
