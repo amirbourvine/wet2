@@ -80,6 +80,9 @@ Hash_Table_Chain<T>::Hash_Table_Chain(bool (*isEqual)(const T& t1, const T& t2),
 
 template<class T>
 Hash_Table_Chain<T>::~Hash_Table_Chain() {
+    for(int i = 0; i<this->size; i++){
+        delete this->arr[i];
+    }
     delete[] arr;
 }
 
