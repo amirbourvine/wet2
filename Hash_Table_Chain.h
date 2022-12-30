@@ -95,15 +95,28 @@ StatusType Hash_Table_Chain<T>::increaseSize() {
     }
     for(int i = 0; i<new_size; i++){
         temp[i] = new RankTree<hash_obj<T>>(isLarger_hashobj, this->isEqual_hashobj);
+        if(temp[i] == nullptr){
+            for(int j = 0; j<i; j++){
+                delete temp[j];
+            }
+            delete[] temp;
+            return StatusType::ALLOCATION_ERROR;
+        }
     }
     StatusType st;
     for(int i = 0; i<this->size; i++){
         if(!this->arr[i]->isEmpty())
             st = insert_tree_Aux(temp, new_size, this->arr[i]);
         if(st!=StatusType::SUCCESS){
+            for(int i = 0; i<new_size; i++){
+                delete temp[i];
+            }
             delete[] temp;
             return st;
         }
+    }
+    for(int i = 0; i<this->size; i++){
+        delete this->arr[i];
     }
     delete[] this->arr;
     this->arr = temp;
