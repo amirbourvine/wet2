@@ -105,14 +105,15 @@ StatusType Hash_Table_Chain<T>::increaseSize() {
     }
     StatusType st;
     for(int i = 0; i<this->size; i++){
-        if(!(this->arr[i]== nullptr||this->arr[i]->isEmpty()))
+        if(!this->arr[i]->isEmpty()) {
             st = insert_tree_Aux(temp, new_size, this->arr[i]);
-        if(st!=StatusType::SUCCESS){
-            for(int j = 0; j<new_size; j++){
-                delete temp[j];
+            if (st != StatusType::SUCCESS) {
+                for (int j = 0; j < new_size; j++) {
+                    delete temp[j];
+                }
+                delete[] temp;
+                return st;
             }
-            delete[] temp;
-            return st;
         }
     }
     for(int i = 0; i<this->size; i++){
