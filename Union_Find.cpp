@@ -47,7 +47,6 @@ StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet)
     if(fromSet->team->getTeamId() == toSet->team->getTeamId()){
         return StatusType::FAILURE;
     }
-
     if(fromSet->team->getPlayersCount() <= toSet->team->getPlayersCount()){
         //Fix val games
         toSet->valgames = toSet->valgames + toSet->team->getGamesPlayedAsTeam();
@@ -79,10 +78,30 @@ StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet)
     //swap between from and to, in order to keep the hash in the right order
     //this->sets.swap(fromSet, toSet, fromSet->team->getTeamId(), toSet->team->getTeamId());
 
+    cout<<this->findTeam(23)<<endl;
+
     fromSet->team->setNotActive();
     fromSet->team = toSet->team;
     toSet->team = nullptr;
     toSet->next = fromSet;
+
+    cout<<this->findTeam(23)<<endl;
+
+    //re-insert fromSet into sets, because id of team changed
+    if(fromSet->team->getPlayersCount()>0) {
+        StatusType st = this->remove_from_sets(fromSet->team);
+        if (st != StatusType::SUCCESS) {
+            cout<<"HERE1"<<endl;
+            return st;
+        }
+        st = this->insert_to_sets(fromSet);
+        if (st != StatusType::SUCCESS) {
+            cout<<"HERE2"<<endl;
+            return st;
+        }
+    }
+
+    cout<<this->findTeam(23)<<endl;
 
     return StatusType::SUCCESS;
 }
@@ -283,6 +302,7 @@ output_t<permutation_t> Union_Find::calcPartialPermutation(int playerId){
     return partialPermutation;
 }
 
+
 void Union_Find::print(){
     /*hash_obj<shared_ptr<Node>>** setsArr(sets.returnNarrowedArray());
     for(int i = 0; i < sets.getObjNum(); ++i) {
@@ -315,5 +335,21 @@ StatusType Union_Find::remove_from_sets(shared_ptr<Team>& team) {
     shared_ptr<Node> demoTeam(new Node(
             make_shared<Player>(-1), team));
     return this->sets->remove(demoTeam);
+}
+
+StatusType Union_Find::insert_to_sets(shared_ptr<Node>& set) {
+    return this->sets->insert(set);
+}
+
+
+
+bool Union_Find::findTeam(int teamid) {
+    shared_ptr<Team> team(new Team(teamid));
+    shared_ptr<Node> demoTeam(new Node(
+            make_shared<Player>(-1), team));
+    output_t<RankNode<std::shared_ptr<Node>> *> output = this->sets->find(demoTeam);
+    if(output.status()!=StatusType::SUCCESS)
+        return false;
+    return true;
 }
 

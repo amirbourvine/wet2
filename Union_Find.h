@@ -55,9 +55,11 @@ public:
     output_t<shared_ptr<Node>> getPlayer(int playerId);
 
     StatusType remove_from_sets(shared_ptr<Team>& team);
+    StatusType insert_to_sets(shared_ptr<Node>& set);
 
-
+    //to delete
     void print();
+    bool findTeam(int teamid);
 };
 
 

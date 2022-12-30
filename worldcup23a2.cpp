@@ -74,7 +74,6 @@ StatusType world_cup_t::remove_team(int teamId)
     if(st!=StatusType::SUCCESS){
         return st;
     }
-
     if(team->getPlayersCount()>0) {
         st = this->uf->remove_from_sets(team);
         if (st != StatusType::SUCCESS) {
@@ -97,7 +96,6 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
         return StatusType::INVALID_INPUT;
     }
     StatusType st;
-
 	shared_ptr<Player> player(new Player(playerId, spirit, ability, cards, goalKeeper));
 
     shared_ptr<Team> temp(new Team(teamId));//will be deleted automatically
@@ -198,7 +196,6 @@ StatusType world_cup_t::add_player_cards(int playerId, int cards)
     if(playerId<=0 || cards<0){
         return StatusType::INVALID_INPUT;
     }
-
 	output_t<shared_ptr<Node>> temp = this->uf->getPlayer(playerId);
     if(temp.status()!=StatusType::SUCCESS)
         return temp.status();
@@ -280,7 +277,6 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
     if(teamId1<=0 || teamId2<=0 || teamId1==teamId2){
         return StatusType::INVALID_INPUT;
     }
-
     shared_ptr<Team> temp2(new Team(teamId2));//will be deleted automatically
     output_t<RankNode<std::shared_ptr<Team>>*> output2 = this->teams_id->find(temp2);
     if(output2.status()!=StatusType::SUCCESS){
@@ -301,21 +297,19 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
     if(st!=StatusType::SUCCESS)
         return st;
 
+
     st = this->uf->uniteSets(teamId1, teamId2);
     if(st!=StatusType::SUCCESS) {
         this->teams_ability->insert(team1);
         return st;
     }
 
+
     team1->incAbility(team2->getAbility());
     team1->addToSpirit(team2->getSpirit());
     team1->addToPlayersCount(team2->getPlayersCount());
 
     this->teams_ability->insert(team1);
-
-//    st = this->remove_team(teamId2);
-//    if(st!=StatusType::SUCCESS)
-//        return st;
 
 
     st = this->teams_id->remove(team2);
