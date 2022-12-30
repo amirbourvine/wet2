@@ -361,6 +361,7 @@ output_t<int> RankNode<T>::rank(const T &value) {
     return num;
 }
 
+//not compiling
 template<class T>
 void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
     // Base case
@@ -382,7 +383,7 @@ void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
     for (int i = COUNT; i < space; i++)
         cout << " ";
     T t= root->key;
-    cout << t << ", h:" << root->h << ", val:"<< root->val << "\n";
+    //cout << t << ", h:" << root->h << ", val:"<< root->val << "\n";
 
     // Process left child
     print2DUtil(root->left, space);
