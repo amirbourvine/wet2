@@ -861,8 +861,10 @@ bool RankNode<T>::find_no_order_aux(const T &value, RankNode<T>* *res, RankNode<
     if(root_ == nullptr){
         return false;
     }
+    if(root_->isEmpty){
+        return false;
+    }
     if(this->isEqual(value, root_->key)){
-        delete *res;
         *res = root_;
         return true;
     }
@@ -872,12 +874,10 @@ bool RankNode<T>::find_no_order_aux(const T &value, RankNode<T>* *res, RankNode<
 
 template<class T>
 output_t<RankNode<T>*> RankNode<T>::find_no_order(const T &value) {
-    auto* res = new RankNode<T>(this->isLarger, this->isEqual);
+    RankNode<T>* res;
    bool flag = this->find_no_order_aux(value, &res, this);
-    if(!flag) {
-        delete res;
+    if(!flag)
         return StatusType::FAILURE;
-    }
     return res;
 }
 
