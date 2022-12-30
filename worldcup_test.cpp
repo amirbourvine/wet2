@@ -6,7 +6,6 @@
 
 int main(){
     auto* obj = new world_cup_t();
-    StatusType st;
     int a[5] = {1, 2, 3, 4, 0};
     permutation_t per1(a);
 

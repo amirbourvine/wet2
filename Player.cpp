@@ -45,6 +45,8 @@ Player& Player::operator=(const Player& other){
     this->cards = other.cards;
     this->goalKeeper = other.goalKeeper;
     this->spirit = other.spirit;
+
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const Player& p){
