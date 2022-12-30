@@ -382,7 +382,7 @@ void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
     cout << endl;
     for (int i = COUNT; i < space; i++)
         cout << " ";
-    T t= root->key;
+    //T t= root->key;
     //cout << t << ", h:" << root->h << ", val:"<< root->val << "\n";
 
     // Process left child
