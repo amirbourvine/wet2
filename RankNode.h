@@ -30,7 +30,7 @@ private:
     output_t<RankNode<T>*> insertaux(RankNode<T>* to_insert, RankNode<T> *root);
     output_t<RankNode<T>*> findaux(const T& val, RankNode<T>* root);
 
-    void find_no_order_aux(const T &value, RankNode<T>* *res, RankNode<T>* root_);
+    void find_no_order_aux(const T &value, RankNode<T> *res, RankNode<T>* root_);
 
     output_t<shared_ptr<T>> getIthRankedaux(RankNode<T>* root, int i);
     void updateH(RankNode<T>* root);
@@ -857,12 +857,12 @@ int RankNode<T>::inorderToArr(RankNode<T> *root_, T **arr, int size, int ind) {
 }
 
 template<class T>
-void RankNode<T>::find_no_order_aux(const T &value, RankNode<T>* *res, RankNode<T>* root_) {
+void RankNode<T>::find_no_order_aux(const T &value, RankNode<T> *res, RankNode<T>* root_) {
     if(root_ == nullptr){
         return;
     }
     if(this->isEqual(value, root_->key)){
-        *res = root_;
+        res = root_;
         return;
     }
     find_no_order_aux(value,res, root_->left);
@@ -872,7 +872,7 @@ void RankNode<T>::find_no_order_aux(const T &value, RankNode<T>* *res, RankNode<
 template<class T>
 output_t<RankNode<T>*> RankNode<T>::find_no_order(const T &value) {
     RankNode<T>* res = nullptr;
-   this->find_no_order_aux(value, &res, this);
+   this->find_no_order_aux(value, res, this);
     if(res == nullptr)
         return StatusType::FAILURE;
     return res;
