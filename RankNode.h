@@ -143,8 +143,6 @@ output_t<RankNode<T> *> RankNode<T>::LLRotation() {
     RankNode<T>* B = this;
     RankNode<T>* A = this->left;
     RankNode<T>* AR = A->right;
-    RankNode<T>* BR = B->right;
-    RankNode<T>* AL = A->left;
 
     if(B->up!= nullptr) {
         if (B->up->left == B) {
@@ -185,8 +183,6 @@ output_t<RankNode<T> *> RankNode<T>::RRRotation() {
     RankNode<T>* B = this;
     RankNode<T>* A = this->right;
     RankNode<T>* AL = A->left;
-    RankNode<T>* AR = A->right;
-    RankNode<T>* BL = B->left;
 
     if(B->up!= nullptr) {
         if (B->up->left == B) {
@@ -229,8 +225,6 @@ output_t<RankNode<T> *> RankNode<T>::LRRotation() {
     RankNode<T>* B = A->right;
     RankNode<T>* BL = B->left;
     RankNode<T>* BR = B->right;
-    RankNode<T>* AL = A->left;
-    RankNode<T>* CR = C->right;
 
     if(C->up!= nullptr) {
         if (C->up->left == C) {
@@ -282,8 +276,6 @@ output_t<RankNode<T> *> RankNode<T>::RLRotation() {
     RankNode<T>* B = A->left;
     RankNode<T>* BL = B->left;
     RankNode<T>* BR = B->right;
-    RankNode<T>* CL = C->left;
-    RankNode<T>* AR = A->right;
 
     if(C->up!= nullptr) {
         if (C->up->left == C) {
