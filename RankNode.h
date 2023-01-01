@@ -627,6 +627,7 @@ output_t<RankNode<T> *> RankNode<T>::insert(const T &value) {
     if(this->isEmpty){//case of empty tree
         this->key = value;
         this->isEmpty = false;
+        this->val = 1;
         return this;
     }
 
