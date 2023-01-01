@@ -299,7 +299,7 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
         return st;
 
     //todo: change uniteSets to treat cases of teams without players
-    st = this->uf->uniteSets(teamId1, teamId2);
+    st = this->uf->uniteSets(team1, team2);
     if (st != StatusType::SUCCESS) {
         this->teams_ability->insert(team1);
         return st;

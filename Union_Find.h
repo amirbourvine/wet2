@@ -37,9 +37,12 @@ class Union_Find {
     Hash_Table_Chain<shared_ptr<Node>> nodes;
     unique_ptr<RankTree<shared_ptr<Node>>> sets;
 
-    StatusType unite(shared_ptr<Node>& set1, shared_ptr<Node>& set2);
-    shared_ptr<Team> findaux(shared_ptr<Node>& start);
 
+    shared_ptr<Team> findaux(shared_ptr<Node>& start);
+    StatusType unite(shared_ptr<Node>& fromSet, bool fromSet_found, shared_ptr<Node>& toSet, bool toSet_found);
+    StatusType unite_2_teams(shared_ptr<Node> &fromSet, shared_ptr<Node> &toSet);
+    StatusType unite_from_team(shared_ptr<Node> &fromSet, shared_ptr<Node> &toSet);
+    StatusType unite_to_team(shared_ptr<Node> &fromSet, shared_ptr<Node> &toSet);
 public:
     Union_Find();
     ~Union_Find() = default;
@@ -60,6 +63,7 @@ public:
     //to delete
     void print();
     bool findTeam(int teamid);
+
 };
 
 

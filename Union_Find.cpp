@@ -40,14 +40,10 @@ Union_Find::Union_Find():
     sets(new RankTree<shared_ptr<Node>>(isTeamsGreater, areTeamsEqual))
 {}
 
-StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet){
-    if(fromSet->team == nullptr || toSet->team == nullptr)
-        return StatusType::FAILURE;
-
+StatusType Union_Find::unite_2_teams(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet){
     if(fromSet->team->getTeamId() == toSet->team->getTeamId()){
         return StatusType::FAILURE;
     }
-
 
     if(fromSet->team->getPlayersCount() <= toSet->team->getPlayersCount()){
         if(fromSet->team->getPlayersCount()>0) {
@@ -64,7 +60,7 @@ StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet)
 
         //Fix permutation track
         fromSet->permutationTrack = toSet->permutationTrack.inv() *
-                toSet->team->getSpirit() * fromSet->permutationTrack;
+                                    toSet->team->getSpirit() * fromSet->permutationTrack;
 
         //Fix sets
         fromSet->team->setNotActive();
@@ -113,35 +109,70 @@ StatusType Union_Find::unite(shared_ptr<Node>& fromSet, shared_ptr<Node>& toSet)
             return st;
         }
     }
-
     return StatusType::SUCCESS;
 }
 
-StatusType Union_Find::uniteSets(int teamId1, int teamId2){
-    if(teamId1 == teamId2)
+StatusType Union_Find::uniteSets(shared_ptr<Team> team1, shared_ptr<Team> team2){
+    if(team1->getTeamId() == team2->getTeamId())
         return StatusType::FAILURE;
 
     shared_ptr<Node> demoTeam(new Node(
             make_shared<Player>(-1),
-                    make_shared<Team>(teamId1)));
+                    make_shared<Team>(team1->getTeamId())));
 
     output_t<shared_ptr<Node>*> out1 = sets->find(demoTeam).ans()->getKey();
-
+    bool team1_found = true;
     if(out1.status() != StatusType::SUCCESS)
-        return out1.status();
+        team1_found = false;
     shared_ptr<Node> set1 = *out1.ans();
 
     demoTeam = make_shared<Node>(
             make_shared<Player>(-1),
-            make_shared<Team>(teamId2));
+            make_shared<Team>(team2->getTeamId()));
 
     output_t<shared_ptr<Node>*> out2 = sets->find(demoTeam).ans()->getKey();
+    bool team2_found = true;
     if(out2.status() != StatusType::SUCCESS)
-        return out2.status();
+        team2_found = false;
 
     shared_ptr<Node> set2 = *out2.ans();
 
-    unite(set2, set1);
+    if(team2_found && team1_found)
+        return unite_2_teams(set2, set1);
+
+    if(team2_found && (!team1_found)){
+        if(set2->team->getPlayersCount()>0) {
+            StatusType st = this->remove_from_sets(set2->team);
+            if (st != StatusType::SUCCESS) {
+                return st;
+            }
+        }
+
+        //Fix val games
+        set2->valgames = set2->valgames + set2->team->getGamesPlayedAsTeam();
+        team1->setGamesPlayedAsTeam(0);
+
+        //Fix sets
+        set2->team->setNotActive();
+        set2->team = team1;
+
+        //re-insert fromSet into sets, because id of team changed
+        if(set2->team->getPlayersCount()>0) {
+            StatusType st = this->insert_to_sets(set2);
+            if (st != StatusType::SUCCESS) {
+                return st;
+            }
+        }
+    }
+
+    if((!team2_found) && team1_found){
+        //Fix val games
+        set1->valgames = set1->valgames + set1->team->getGamesPlayedAsTeam();
+        set1->team->setGamesPlayedAsTeam(0);
+
+        //Fix sets
+        team2->setNotActive();
+    }
 
     return StatusType::SUCCESS;
 }
@@ -355,4 +386,5 @@ bool Union_Find::findTeam(int teamid) {
         return false;
     return true;
 }
+
 
