@@ -348,9 +348,9 @@ void Union_Find::print(){
     for(int i = 0; i < nodes.getObjNum(); ++i){
         shared_ptr<Node> temp = nodesArr[i]->val;
         while(temp->next != nullptr){
-            std::cout << *(temp->player) << "\t->\t";
+            //std::cout << *(temp->player) << "\t->\t";
             //std::cout << *(temp->player) << ", valgames: " << temp->valgames
-            //  << ", permutation: " << temp->permutationTrack << "\t->\t";
+            std::cout << *(temp->player) << ", permutation: " << temp->permutationTrack << "\t->\t";
             temp = temp->next;
         }
         std::cout << *(temp->player) << "\t->\t";
@@ -358,6 +358,42 @@ void Union_Find::print(){
         //<< ", permutation: " << temp->permutationTrack << "\t->\t";
 
         std::cout << *(temp->team) << "\n";
+    }
+
+    delete[] nodesArr;
+}
+
+
+void Union_Find::print2(int num){
+    /*hash_obj<shared_ptr<Node>>** setsArr(sets.returnNarrowedArray());
+    for(int i = 0; i < sets.getObjNum(); ++i) {
+        if(setsArr[i]->val->team != nullptr)
+            cout << *(setsArr[i]->val->team) << "\t";
+    }
+    cout << "\n";*/
+    //sets->print2D();
+
+    hash_obj<shared_ptr<Node>>** nodesArr(nodes.returnNarrowedArray());
+    for(int i = 0; i < nodes.getObjNum(); ++i){
+        shared_ptr<Node> temp = nodesArr[i]->val;
+        shared_ptr<Node> curr = nodesArr[i]->val;
+        while(curr->next != nullptr){
+            curr = curr->next;
+        }
+        if(curr->team->getTeamId()==num) {
+            while (temp->next != nullptr) {
+                //std::cout << *(temp->player) << "\t->\t";
+                //std::cout << *(temp->player) << ", valgames: " << temp->valgames
+                std::cout << *(temp->player) << ", permutation: " << temp->permutationTrack << "\t->\t";
+                temp = temp->next;
+            }
+            //std::cout << *(temp->player) << "\t->\t";
+            //std::cout << *(temp->player) << ", valgames: " << temp->valgames
+            std::cout << *(temp->player)<< ", permutation: " << temp->permutationTrack << "\t->\t";
+
+            std::cout << *(temp->team) << ", " <<temp->team->getSpirit() << "\n";
+
+        }
     }
 
     delete[] nodesArr;

@@ -60,6 +60,7 @@ public:
 
     //to delete
     void print();
+    void print2(int num);
     bool findTeam(int teamid);
 
 };

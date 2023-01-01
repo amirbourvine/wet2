@@ -351,3 +351,8 @@ void world_cup_t::print_uf() {
     cout<<"UF:"<<endl;
     this->uf->print();
 }
+
+void world_cup_t::print_uf2(int num) {
+    cout<<"UF:"<<endl;
+    this->uf->print2(num);
+}
