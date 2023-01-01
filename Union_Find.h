@@ -39,17 +39,15 @@ class Union_Find {
 
 
     shared_ptr<Team> findaux(shared_ptr<Node>& start);
-    StatusType unite(shared_ptr<Node>& fromSet, bool fromSet_found, shared_ptr<Node>& toSet, bool toSet_found);
     StatusType unite_2_teams(shared_ptr<Node> &fromSet, shared_ptr<Node> &toSet);
-    StatusType unite_from_team(shared_ptr<Node> &fromSet, shared_ptr<Node> &toSet);
-    StatusType unite_to_team(shared_ptr<Node> &fromSet, shared_ptr<Node> &toSet);
+
 public:
     Union_Find();
     ~Union_Find() = default;
     Union_Find(Union_Find&) = delete;
     void operator=(Union_Find&) = delete;
 
-    StatusType uniteSets(int team1, int team2);
+    StatusType uniteSets(shared_ptr<Team>& team1, shared_ptr<Team>& team2);
     StatusType makeSet(const shared_ptr<Player>&, const shared_ptr<Team>&, int gamesPlayed = 0);
     output_t<shared_ptr<Team>> find(int playerId);
 

@@ -112,7 +112,7 @@ StatusType Union_Find::unite_2_teams(shared_ptr<Node>& fromSet, shared_ptr<Node>
     return StatusType::SUCCESS;
 }
 
-StatusType Union_Find::uniteSets(shared_ptr<Team> team1, shared_ptr<Team> team2){
+StatusType Union_Find::uniteSets(shared_ptr<Team>& team1, shared_ptr<Team>& team2){
     if(team1->getTeamId() == team2->getTeamId())
         return StatusType::FAILURE;
 
