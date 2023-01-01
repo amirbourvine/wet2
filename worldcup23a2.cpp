@@ -311,6 +311,7 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
     team1->incAbility(team2->getAbility());
     team1->addToSpirit(team2->getSpirit());
     team1->addToPlayersCount(team2->getPlayersCount());
+    team1->setGoalKeepersAmount(team1->getGoalKeepersAmount()+team2->getGoalKeepersAmount());
 
     this->teams_ability->insert(team1);
 
