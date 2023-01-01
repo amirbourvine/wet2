@@ -298,14 +298,11 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
     if(st!=StatusType::SUCCESS)
         return st;
 
-
-
-    if(team1->getPlayersCount()>0 && team2->getPlayersCount()>0) {
-        st = this->uf->uniteSets(teamId1, teamId2);
-        if (st != StatusType::SUCCESS) {
-            this->teams_ability->insert(team1);
-            return st;
-        }
+    //todo: change uniteSets to treat cases of teams without players
+    st = this->uf->uniteSets(teamId1, teamId2);
+    if (st != StatusType::SUCCESS) {
+        this->teams_ability->insert(team1);
+        return st;
     }
 
     team1->incAbility(team2->getAbility());
@@ -314,7 +311,6 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
     team1->setGoalKeepersAmount(team1->getGoalKeepersAmount()+team2->getGoalKeepersAmount());
 
     this->teams_ability->insert(team1);
-
 
     st = this->teams_id->remove(team2);
     if(st!=StatusType::SUCCESS){

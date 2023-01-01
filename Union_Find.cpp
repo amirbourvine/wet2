@@ -125,7 +125,6 @@ StatusType Union_Find::uniteSets(int teamId1, int teamId2){
             make_shared<Player>(-1),
                     make_shared<Team>(teamId1)));
 
-    //output_t<shared_ptr<Node>> out1 = sets.get(demoTeam, teamId1);
     output_t<shared_ptr<Node>*> out1 = sets->find(demoTeam).ans()->getKey();
 
     if(out1.status() != StatusType::SUCCESS)

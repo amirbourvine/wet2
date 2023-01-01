@@ -589,7 +589,7 @@ void RankNode<T>::transferInfo(RankNode<T> *from, RankNode<T> *to) {
 template<class T>
 output_t<T*> RankNode<T>::getKey() {
     if(this==nullptr){
-        return StatusType::INVALID_INPUT;
+        return StatusType::FAILURE;
     }
     if(this->isEmpty)
         return nullptr;
