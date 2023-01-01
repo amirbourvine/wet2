@@ -96,7 +96,13 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
         return StatusType::INVALID_INPUT;
     }
     StatusType st;
+    output_t<shared_ptr<Node>> output = uf->getPlayer(playerId);
+    if(output.status()==StatusType::SUCCESS){
+        return StatusType::FAILURE;
+    }
+
 	shared_ptr<Player> player(new Player(playerId, spirit, ability, cards, goalKeeper));
+
 
     shared_ptr<Team> temp(new Team(teamId));//will be deleted automatically
     output_t<RankNode<std::shared_ptr<Team>>*> output = this->teams_id->find(temp);
