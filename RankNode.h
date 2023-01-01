@@ -382,8 +382,8 @@ void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
     cout << endl;
     for (int i = COUNT; i < space; i++)
         cout << " ";
-    //T t= root->key;
-    //cout << t << ", h:" << root->h << ", val:"<< root->val << "\n";
+    T t= root->key;
+    cout << t << ", h:" << root->h << ", val:"<< root->val << "\n";
 
     // Process left child
     print2DUtil(root->left, space);
@@ -656,18 +656,21 @@ output_t<RankNode<T> *> RankNode<T>::insert(const T &value) {
                 if (p->left->getBF().ans() == -1) {
                     q = p->LRRotation().ans();
                     if(q->h>this->h) {
+                        q->fixVal();
                         return q;
                     }
                     else {
-                        this->fixVal();
+                        q->fixVal();
                         return this;
                     }
                 } else {
                     q = p->LLRotation().ans();
-                    if(q->h>this->h)
+                    if(q->h>this->h) {
+                        q->fixVal();
                         return q;
+                    }
                     else {
-                        this->fixVal();
+                        q->fixVal();
                         return this;
                     }
                 }
@@ -676,19 +679,23 @@ output_t<RankNode<T> *> RankNode<T>::insert(const T &value) {
                 if(p->right->getBF().ans()==1){
                     q = p->RLRotation().ans();
 
-                    if(q->h>this->h)
+                    if(q->h>this->h) {
+                        q->fixVal();
                         return q;
+                    }
                     else {
-                        this->fixVal();
+                        q->fixVal();
                         return this;
                     }
                 }
                 else{
                     q = p->RRRotation().ans();
-                    if(q->h>this->h)
+                    if(q->h>this->h) {
+                        q->fixVal();
                         return q;
+                    }
                     else {
-                        this->fixVal();
+                        q->fixVal();
                         return this;
                     }
                 }
