@@ -122,9 +122,11 @@ StatusType Union_Find::uniteSets(shared_ptr<Team>& team1, shared_ptr<Team>& team
 
     output_t<shared_ptr<Node>*> out1 = sets->find(demoTeam).ans()->getKey();
     bool team1_found = true;
+    shared_ptr<Node> set1 = nullptr;
     if(out1.status() != StatusType::SUCCESS)
         team1_found = false;
-    shared_ptr<Node> set1 = *out1.ans();
+    else
+        set1 = *out1.ans();
 
     demoTeam = make_shared<Node>(
             make_shared<Player>(-1),
@@ -132,10 +134,11 @@ StatusType Union_Find::uniteSets(shared_ptr<Team>& team1, shared_ptr<Team>& team
 
     output_t<shared_ptr<Node>*> out2 = sets->find(demoTeam).ans()->getKey();
     bool team2_found = true;
+    shared_ptr<Node> set2 = nullptr;
     if(out2.status() != StatusType::SUCCESS)
         team2_found = false;
-
-    shared_ptr<Node> set2 = *out2.ans();
+    else
+        set2 = *out2.ans();
 
     if(team2_found && team1_found)
         return unite_2_teams(set2, set1);
