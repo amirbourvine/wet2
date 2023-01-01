@@ -144,11 +144,9 @@ StatusType Union_Find::uniteSets(shared_ptr<Team>& team1, shared_ptr<Team>& team
         return unite_2_teams(set2, set1);
 
     if(team2_found && (!team1_found)){
-        if(set2->team->getPlayersCount()>0) {
-            StatusType st = this->remove_from_sets(set2->team);
-            if (st != StatusType::SUCCESS) {
-                return st;
-            }
+        StatusType st = this->remove_from_sets(set2->team);
+        if (st != StatusType::SUCCESS) {
+            return st;
         }
 
         //Fix val games
@@ -160,11 +158,9 @@ StatusType Union_Find::uniteSets(shared_ptr<Team>& team1, shared_ptr<Team>& team
         set2->team = team1;
 
         //re-insert fromSet into sets, because id of team changed
-        if(set2->team->getPlayersCount()>0) {
-            StatusType st = this->insert_to_sets(set2);
-            if (st != StatusType::SUCCESS) {
-                return st;
-            }
+        st = this->insert_to_sets(set2);
+        if (st != StatusType::SUCCESS) {
+            return st;
         }
     }
 
@@ -190,7 +186,6 @@ StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_pt
     shared_ptr<Node> node(new Node(player, team, player->getSpirit(), gamesPlayed));
 
     nodes.insert(player->getPlayerId(), node);
-
 
     shared_ptr<Node> occupiedSet = nullptr;
 

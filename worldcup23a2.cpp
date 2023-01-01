@@ -104,7 +104,6 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
 
 	shared_ptr<Player> player(new Player(playerId, spirit, ability, cards, goalKeeper));
 
-
     shared_ptr<Team> temp(new Team(teamId));//will be deleted automatically
     output_t<RankNode<std::shared_ptr<Team>>*> output = this->teams_id->find(temp);
     if(output.status()!=StatusType::SUCCESS){
