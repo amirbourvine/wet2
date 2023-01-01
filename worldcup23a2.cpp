@@ -96,8 +96,9 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
         return StatusType::INVALID_INPUT;
     }
     StatusType st;
-    output_t<shared_ptr<Node>> output = uf->getPlayer(playerId);
-    if(output.status()==StatusType::SUCCESS){
+
+    output_t<shared_ptr<Node>> output1 = uf->getPlayer(playerId);
+    if(output1.status()==StatusType::SUCCESS){
         return StatusType::FAILURE;
     }
 
