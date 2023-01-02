@@ -215,7 +215,6 @@ StatusType Union_Find::makeSet(const shared_ptr<Player>& player, const shared_pt
         return StatusType::SUCCESS;
     }
     else{
-        //sets.insert(node->team->getTeamId(), node);
         sets->insert(node);
     }
     return StatusType::SUCCESS;
@@ -244,7 +243,7 @@ shared_ptr<Team> Union_Find::findaux(shared_ptr<Node>& start){
 
         //Fix permutation track
         permutation_t prePermutationTrack = start->permutationTrack;
-        start->permutationTrack = permutationTrackFix.inv() * totalPermutationTrack;
+        start->permutationTrack = totalPermutationTrack * permutationTrackFix.inv();
         permutationTrackFix = prePermutationTrack * permutationTrackFix;
 
         //Connect directly to set
