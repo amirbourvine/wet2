@@ -112,10 +112,10 @@ int main()
 			cout << "Invalid input format" << endl;
 			return -1;
 		}
-        cout<<"*******28**********"<<endl;
-        obj->print_uf2(28);
-        cout<<"*******83**********"<<endl;
-        obj->print_uf2(83);
+//        cout<<"*******28**********"<<endl;
+//        obj->print_uf2(28);
+//        cout<<"*******83**********"<<endl;
+//        obj->print_uf2(83);
 	}
 	
 	// Quit 
