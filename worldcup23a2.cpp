@@ -37,18 +37,22 @@ StatusType world_cup_t::add_team(int teamId)
     if(teamId<=0){
         return StatusType::INVALID_INPUT;
     }
-
-    StatusType st;
-	shared_ptr<Team> new_team(new Team(teamId));
-    st = this->teams_id->insert(new_team);
-    if(st!=StatusType::SUCCESS){
-        return st;
+    try {
+        StatusType st;
+        shared_ptr<Team> new_team(new Team(teamId));
+        st = this->teams_id->insert(new_team);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+        st = this->teams_ability->insert(new_team);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+        this->active_teams++;
     }
-    st = this->teams_ability->insert(new_team);
-    if(st!=StatusType::SUCCESS){
-        return st;
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
     }
-    this->active_teams++;
 	return StatusType::SUCCESS;
 }
 
@@ -57,34 +61,38 @@ StatusType world_cup_t::remove_team(int teamId)
     if(teamId<=0){
         return StatusType::INVALID_INPUT;
     }
-    StatusType st;
-    shared_ptr<Team> temp(new Team(teamId));//will be deleted automatically
-    output_t<RankNode<std::shared_ptr<Team>>*> output = this->teams_id->find(temp);
-    if(output.status()!=StatusType::SUCCESS){
-        return output.status();
-    }
-    shared_ptr<Team> team = *(output.ans()->getKey().ans());
+    try {
+        StatusType st;
+        shared_ptr<Team> temp(new Team(teamId));//will be deleted automatically
+        output_t<RankNode<std::shared_ptr<Team>> *> output = this->teams_id->find(temp);
+        if (output.status() != StatusType::SUCCESS) {
+            return output.status();
+        }
+        shared_ptr<Team> team = *(output.ans()->getKey().ans());
 
-    st = this->teams_id->remove(team);
-    if(st!=StatusType::SUCCESS){
-        return st;
-    }
-
-    st = this->teams_ability->remove(team);
-    if(st!=StatusType::SUCCESS){
-        return st;
-    }
-    if(team->getPlayersCount()>0) {
-        st = this->uf->remove_from_sets(team);
+        st = this->teams_id->remove(team);
         if (st != StatusType::SUCCESS) {
             return st;
         }
+
+        st = this->teams_ability->remove(team);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+        if (team->getPlayersCount() > 0) {
+            st = this->uf->remove_from_sets(team);
+            if (st != StatusType::SUCCESS) {
+                return st;
+            }
+        }
+
+        this->active_teams--;
+
+        team->setNotActive();
     }
-
-    this->active_teams--;
-
-    team->setNotActive();
-
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
+    }
     return StatusType::SUCCESS;
 }
 
@@ -95,39 +103,43 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
     if(playerId<=0 || teamId<=0 || !spirit.isvalid() || gamesPlayed<0 || cards<0){
         return StatusType::INVALID_INPUT;
     }
-    StatusType st;
+    try {
+        StatusType st;
 
-    output_t<shared_ptr<Node>> output1 = uf->getPlayer(playerId);
-    if(output1.status()==StatusType::SUCCESS){
-        return StatusType::FAILURE;
+        output_t<shared_ptr<Node>> output1 = uf->getPlayer(playerId);
+        if (output1.status() == StatusType::SUCCESS) {
+            return StatusType::FAILURE;
+        }
+
+        shared_ptr<Player> player(new Player(playerId, spirit, ability, cards, goalKeeper));
+
+        shared_ptr<Team> temp(new Team(teamId));//will be deleted automatically
+        output_t<RankNode<std::shared_ptr<Team>> *> output = this->teams_id->find(temp);
+        if (output.status() != StatusType::SUCCESS) {
+            return output.status();
+        }
+
+        shared_ptr<Team> team = *(output.ans()->getKey().ans());
+
+        st = this->teams_ability->remove(team);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+
+        team->add_player(player);
+
+        //we assume that the team spirit was updated before (line 120)
+        //so the spirit for player needs to be the current team spirit
+        this->uf->makeSet(player, team, gamesPlayed);
+
+        st = this->teams_ability->insert(team);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
     }
-
-	shared_ptr<Player> player(new Player(playerId, spirit, ability, cards, goalKeeper));
-
-    shared_ptr<Team> temp(new Team(teamId));//will be deleted automatically
-    output_t<RankNode<std::shared_ptr<Team>>*> output = this->teams_id->find(temp);
-    if(output.status()!=StatusType::SUCCESS){
-        return output.status();
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
     }
-
-    shared_ptr<Team> team = *(output.ans()->getKey().ans());
-
-    st = this->teams_ability->remove(team);
-    if(st!=StatusType::SUCCESS){
-        return st;
-    }
-
-    team->add_player(player);
-
-    //we assume that the team spirit was updated before (line 120)
-    //so the spirit for player needs to be the current team spirit
-    this->uf->makeSet(player, team, gamesPlayed);
-
-    st = this->teams_ability->insert(team);
-    if(st!=StatusType::SUCCESS){
-        return st;
-    }
-
 	return StatusType::SUCCESS;
 }
 
@@ -137,55 +149,59 @@ output_t<int> world_cup_t::play_match(int teamId1, int teamId2)
     if(teamId1<=0 || teamId2<=0 || teamId1==teamId2){
         return StatusType::INVALID_INPUT;
     }
+    try {
+        shared_ptr<Team> temp1(new Team(teamId1));//will be deleted automatically
+        output_t<RankNode<std::shared_ptr<Team>> *> output1 = this->teams_id->find(temp1);
+        if (output1.status() != StatusType::SUCCESS) {
+            return output1.status();
+        }
+        shared_ptr<Team> team1 = *(output1.ans()->getKey().ans());
 
-    shared_ptr<Team> temp1(new Team(teamId1));//will be deleted automatically
-    output_t<RankNode<std::shared_ptr<Team>>*> output1 = this->teams_id->find(temp1);
-    if(output1.status()!=StatusType::SUCCESS){
-        return output1.status();
-    }
-    shared_ptr<Team> team1 = *(output1.ans()->getKey().ans());
+        shared_ptr<Team> temp2(new Team(teamId2));//will be deleted automatically
+        output_t<RankNode<std::shared_ptr<Team>> *> output2 = this->teams_id->find(temp2);
+        if (output2.status() != StatusType::SUCCESS) {
+            return output2.status();
+        }
+        shared_ptr<Team> team2 = *(output2.ans()->getKey().ans());
 
-    shared_ptr<Team> temp2(new Team(teamId2));//will be deleted automatically
-    output_t<RankNode<std::shared_ptr<Team>>*> output2 = this->teams_id->find(temp2);
-    if(output2.status()!=StatusType::SUCCESS){
-        return output2.status();
-    }
-    shared_ptr<Team> team2 = *(output2.ans()->getKey().ans());
+        if (team1->getGoalKeepersAmount() < 1 || team2->getGoalKeepersAmount() < 1)
+            return StatusType::FAILURE;
 
-    if(team1->getGoalKeepersAmount()<1 || team2->getGoalKeepersAmount()<1)
-        return StatusType::FAILURE;
+        int power1 = team1->getAbility() + team1->getPoints();
+        int power2 = team2->getAbility() + team2->getPoints();
 
-    int power1 = team1->getAbility() + team1->getPoints();
-    int power2 = team2->getAbility() + team2->getPoints();
-
-    if(power1>power2){
-        team1->addPoints(3);
-        res = 1;
-    }
-    if(power1<power2){
-        team2->addPoints(3);
-        res = 3;
-    }
-    if(power1==power2){
-        int strength1 = team1->getSpirit().strength();
-        int strength2 = team2->getSpirit().strength();
-        if(strength1>strength2){
+        if (power1 > power2) {
             team1->addPoints(3);
-            res = 2;
+            res = 1;
         }
-        if(strength1<strength2){
+        if (power1 < power2) {
             team2->addPoints(3);
-            res = 4;
+            res = 3;
         }
-        if(strength1==strength2){
-            team1->addPoints(1);
-            team2->addPoints(1);
-            res = 0;
+        if (power1 == power2) {
+            int strength1 = team1->getSpirit().strength();
+            int strength2 = team2->getSpirit().strength();
+            if (strength1 > strength2) {
+                team1->addPoints(3);
+                res = 2;
+            }
+            if (strength1 < strength2) {
+                team2->addPoints(3);
+                res = 4;
+            }
+            if (strength1 == strength2) {
+                team1->addPoints(1);
+                team2->addPoints(1);
+                res = 0;
+            }
         }
-    }
 
-    team1->setGamesPlayedAsTeam(team1->getGamesPlayedAsTeam()+1);
-    team2->setGamesPlayedAsTeam(team2->getGamesPlayedAsTeam()+1);
+        team1->setGamesPlayedAsTeam(team1->getGamesPlayedAsTeam() + 1);
+        team2->setGamesPlayedAsTeam(team2->getGamesPlayedAsTeam() + 1);
+    }
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
+    }
     return res;
 }
 
@@ -194,7 +210,12 @@ output_t<int> world_cup_t::num_played_games_for_player(int playerId)
     if(playerId<=0){
         return StatusType::INVALID_INPUT;
     }
-	return this->uf->calcGamesPlayed(playerId);
+    try {
+        return this->uf->calcGamesPlayed(playerId);
+    }
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
+    }
 }
 
 StatusType world_cup_t::add_player_cards(int playerId, int cards)
@@ -202,22 +223,26 @@ StatusType world_cup_t::add_player_cards(int playerId, int cards)
     if(playerId<=0 || cards<0){
         return StatusType::INVALID_INPUT;
     }
-	output_t<shared_ptr<Node>> temp = this->uf->getPlayer(playerId);
-    if(temp.status()!=StatusType::SUCCESS)
-        return temp.status();
-    shared_ptr<Node> player = temp.ans();
+    try {
+        output_t<shared_ptr<Node>> temp = this->uf->getPlayer(playerId);
+        if (temp.status() != StatusType::SUCCESS)
+            return temp.status();
+        shared_ptr<Node> player = temp.ans();
 
-    output_t<shared_ptr<Team>> output = this->uf->find(playerId);
-    if(output.status()!=StatusType::SUCCESS)
-        return output.status();
-    shared_ptr<Team> team = output.ans();
+        output_t<shared_ptr<Team>> output = this->uf->find(playerId);
+        if (output.status() != StatusType::SUCCESS)
+            return output.status();
+        shared_ptr<Team> team = output.ans();
 
-    if(!team->isActive()){
-        return StatusType::FAILURE;
+        if (!team->isActive()) {
+            return StatusType::FAILURE;
+        }
+
+        player->player->setCards(player->player->getCards() + cards);
     }
-
-    player->player->setCards( player->player->getCards()+cards);
-
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
+    }
 	return StatusType::SUCCESS;
 }
 
@@ -226,13 +251,16 @@ output_t<int> world_cup_t::get_player_cards(int playerId)
     if(playerId<=0){
         return StatusType::INVALID_INPUT;
     }
-
-    output_t<shared_ptr<Node>> temp = this->uf->getPlayer(playerId);
-    if(temp.status()!=StatusType::SUCCESS)
-        return temp.status();
-    shared_ptr<Node> player = temp.ans();
-
-	return player->player->getCards();
+    try {
+        output_t<shared_ptr<Node>> temp = this->uf->getPlayer(playerId);
+        if (temp.status() != StatusType::SUCCESS)
+            return temp.status();
+        shared_ptr<Node> player = temp.ans();
+        return player->player->getCards();
+    }
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
+    }
 }
 
 output_t<int> world_cup_t::get_team_points(int teamId)
@@ -240,25 +268,34 @@ output_t<int> world_cup_t::get_team_points(int teamId)
     if(teamId<=0){
         return StatusType::INVALID_INPUT;
     }
+    try {
+        shared_ptr<Team> temp(new Team(teamId));
+        output_t<RankNode<shared_ptr<Team>> *> output = this->teams_id->find(temp);
+        if (output.status() != StatusType::SUCCESS) {
+            return output.status();
+        }
+        shared_ptr<Team> team = *(output.ans()->getKey().ans());
 
-    shared_ptr<Team> temp(new Team(teamId));
-    output_t<RankNode<shared_ptr<Team>> *> output = this->teams_id->find(temp);
-    if(output.status()!=StatusType::SUCCESS){
-        return output.status();
+        return team->getPoints();
     }
-    shared_ptr<Team> team = *(output.ans()->getKey().ans());
-
-    return team->getPoints();
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
+    }
 }
 
 output_t<int> world_cup_t::get_ith_pointless_ability(int i)
 {
-    output_t<shared_ptr<std::shared_ptr<Team>>> output = this->teams_ability->getIthRanked(i);
-    if(output.status()!=StatusType::SUCCESS){
-        return output.status();
+    try {
+        output_t<shared_ptr<std::shared_ptr<Team>>> output = this->teams_ability->getIthRanked(i);
+        if (output.status() != StatusType::SUCCESS) {
+            return output.status();
+        }
+        shared_ptr<Team> team = *(output.ans());
+        return team->getTeamId();
     }
-    shared_ptr<Team> team = *(output.ans());
-    return team->getTeamId();
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
+    }
 }
 
 output_t<permutation_t> world_cup_t::get_partial_spirit(int playerId)
@@ -266,16 +303,20 @@ output_t<permutation_t> world_cup_t::get_partial_spirit(int playerId)
 	if(playerId<=0){
         return StatusType::INVALID_INPUT;
     }
+    try {
+        output_t<shared_ptr<Team>> output = this->uf->find(playerId);
+        if (output.status() != StatusType::SUCCESS)
+            return output.status();
+        shared_ptr<Team> team = output.ans();
+        if (!team->isActive()) {
+            return StatusType::FAILURE;
+        }
 
-    output_t<shared_ptr<Team>> output = this->uf->find(playerId);
-    if(output.status()!=StatusType::SUCCESS)
-        return output.status();
-    shared_ptr<Team> team = output.ans();
-    if(!team->isActive()){
-        return StatusType::FAILURE;
+        return this->uf->calcPartialPermutation(playerId);
     }
-
-    return this->uf->calcPartialPermutation(playerId);
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
+    }
 }
 
 StatusType world_cup_t::buy_team(int teamId1, int teamId2)
@@ -283,54 +324,58 @@ StatusType world_cup_t::buy_team(int teamId1, int teamId2)
     if(teamId1<=0 || teamId2<=0 || teamId1==teamId2){
         return StatusType::INVALID_INPUT;
     }
+    try {
+        shared_ptr<Team> temp2(new Team(teamId2));//will be deleted automatically
+        output_t<RankNode<std::shared_ptr<Team>> *> output2 = this->teams_id->find(temp2);
+        if (output2.status() != StatusType::SUCCESS) {
+            return output2.status();
+        }
+        shared_ptr<Team> team2 = *(output2.ans()->getKey().ans());
 
-    shared_ptr<Team> temp2(new Team(teamId2));//will be deleted automatically
-    output_t<RankNode<std::shared_ptr<Team>>*> output2 = this->teams_id->find(temp2);
-    if(output2.status()!=StatusType::SUCCESS){
-        return output2.status();
-    }
-    shared_ptr<Team> team2 = *(output2.ans()->getKey().ans());
+        StatusType st;
 
-    StatusType st;
+        shared_ptr<Team> temp1(new Team(teamId1));
+        output_t<RankNode<shared_ptr<Team>> *> output1 = this->teams_id->find(temp1);
+        if (output1.status() != StatusType::SUCCESS) {
+            return output1.status();
+        }
+        shared_ptr<Team> team1 = *(output1.ans()->getKey().ans());
 
-    shared_ptr<Team> temp1(new Team(teamId1));
-    output_t<RankNode<shared_ptr<Team>> *> output1 = this->teams_id->find(temp1);
-    if(output1.status()!=StatusType::SUCCESS){
-        return output1.status();
-    }
-    shared_ptr<Team> team1 = *(output1.ans()->getKey().ans());
+        st = this->teams_ability->remove(team1);
+        if (st != StatusType::SUCCESS)
+            return st;
 
-    st = this->teams_ability->remove(team1);
-    if(st!=StatusType::SUCCESS)
-        return st;
+        st = this->uf->uniteSets(team1, team2);
+        if (st != StatusType::SUCCESS) {
+            this->teams_ability->insert(team1);
+            return st;
+        }
 
-    st = this->uf->uniteSets(team1, team2);
-    if (st != StatusType::SUCCESS) {
+        team1->incAbility(team2->getAbility());
+        team1->addToSpirit(team2->getSpirit());
+        team1->addToPlayersCount(team2->getPlayersCount());
+        team1->setGoalKeepersAmount(team1->getGoalKeepersAmount() + team2->getGoalKeepersAmount());
+        team1->addPoints(team2->getPoints());
+
         this->teams_ability->insert(team1);
-        return st;
+
+        st = this->teams_id->remove(team2);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+
+        st = this->teams_ability->remove(team2);
+        if (st != StatusType::SUCCESS) {
+            return st;
+        }
+
+        this->active_teams--;
+
+        return StatusType::SUCCESS;
     }
-
-    team1->incAbility(team2->getAbility());
-    team1->addToSpirit(team2->getSpirit());
-    team1->addToPlayersCount(team2->getPlayersCount());
-    team1->setGoalKeepersAmount(team1->getGoalKeepersAmount()+team2->getGoalKeepersAmount());
-    team1->addPoints(team2->getPoints());
-
-    this->teams_ability->insert(team1);
-
-    st = this->teams_id->remove(team2);
-    if(st!=StatusType::SUCCESS){
-        return st;
+    catch(const std::bad_alloc& exc){
+        return StatusType::ALLOCATION_ERROR;
     }
-
-    st = this->teams_ability->remove(team2);
-    if(st!=StatusType::SUCCESS){
-        return st;
-    }
-
-    this->active_teams--;
-
-    return StatusType::SUCCESS;
 }
 
 void world_cup_t::printTeams_id() {
