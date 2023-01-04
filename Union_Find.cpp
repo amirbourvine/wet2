@@ -1,7 +1,4 @@
-#include <algorithm>
-#include <iostream>
 #include <memory>
-
 #include "Union_Find.h"
 
 using namespace std;
