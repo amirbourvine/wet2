@@ -58,11 +58,6 @@ public:
     StatusType remove_from_sets(shared_ptr<Team>& team);
     StatusType insert_to_sets(shared_ptr<Node>& set);
 
-    //to delete
-    void print();
-    void print2(int num);
-    bool findTeam(int teamid);
-
 };
 
 

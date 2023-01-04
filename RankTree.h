@@ -36,13 +36,6 @@ public:
 
     int inorderToArr(T **arr, int size_);
     int getSize(){return this->size;}
-
-    //to delete:
-    void print2D();
-    RankNode<T>* getRight();
-    RankNode<T>* getLeft();
-    RankNode<T>* getUp();
-    int getH();
 };
 
 template<class T>
@@ -78,31 +71,6 @@ output_t<int> RankTree<T>::getBF() {
 template<class T>
 output_t<RankNode<T>*> RankTree<T>::find(const T &val) {
     return root->find(val);
-}
-
-template<class T>
-void RankTree<T>::print2D() {
-    root->print2D();
-}
-
-template<class T>
-RankNode<T> *RankTree<T>::getLeft() {
-    return root->getLeft();
-}
-
-template<class T>
-RankNode<T> *RankTree<T>::getRight() {
-    return root->getRight();
-}
-
-template<class T>
-RankNode<T> *RankTree<T>::getUp() {
-    return root->getUp();
-}
-
-template<class T>
-int RankTree<T>::getH() {
-    return root->getH();
 }
 
 template<class T>

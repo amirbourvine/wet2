@@ -334,70 +334,6 @@ output_t<permutation_t> Union_Find::calcPartialPermutation(int playerId){
 }
 
 
-void Union_Find::print(){
-    /*hash_obj<shared_ptr<Node>>** setsArr(sets.returnNarrowedArray());
-    for(int i = 0; i < sets.getObjNum(); ++i) {
-        if(setsArr[i]->val->team != nullptr)
-            cout << *(setsArr[i]->val->team) << "\t";
-    }
-    cout << "\n";*/
-    //sets->print2D();
-
-    hash_obj<shared_ptr<Node>>** nodesArr(nodes.returnNarrowedArray());
-    for(int i = 0; i < nodes.getObjNum(); ++i){
-        shared_ptr<Node> temp = nodesArr[i]->val;
-        while(temp->next != nullptr){
-            //std::cout << *(temp->player) << "\t->\t";
-            //std::cout << *(temp->player) << ", valgames: " << temp->valgames
-            std::cout << *(temp->player) << ", permutation: " << temp->permutationTrack << "\t->\t";
-            temp = temp->next;
-        }
-        std::cout << *(temp->player) << "\t->\t";
-        //std::cout << *(temp->player) << ", valgames: " << temp->valgames
-        //<< ", permutation: " << temp->permutationTrack << "\t->\t";
-
-        std::cout << *(temp->team) << "\n";
-    }
-
-    delete[] nodesArr;
-}
-
-
-void Union_Find::print2(int num){
-    /*hash_obj<shared_ptr<Node>>** setsArr(sets.returnNarrowedArray());
-    for(int i = 0; i < sets.getObjNum(); ++i) {
-        if(setsArr[i]->val->team != nullptr)
-            cout << *(setsArr[i]->val->team) << "\t";
-    }
-    cout << "\n";*/
-    //sets->print2D();
-
-    hash_obj<shared_ptr<Node>>** nodesArr(nodes.returnNarrowedArray());
-    for(int i = 0; i < nodes.getObjNum(); ++i){
-        shared_ptr<Node> temp = nodesArr[i]->val;
-        shared_ptr<Node> curr = nodesArr[i]->val;
-        while(curr->next != nullptr){
-            curr = curr->next;
-        }
-        if(curr->team->getTeamId()==num) {
-            while (temp->next != nullptr) {
-                //std::cout << *(temp->player) << "\t->\t";
-                //std::cout << *(temp->player) << ", valgames: " << temp->valgames
-                std::cout << *(temp->player) << ", permutation: " << temp->permutationTrack << "\t->\t";
-                temp = temp->next;
-            }
-            //std::cout << *(temp->player) << "\t->\t";
-            //std::cout << *(temp->player) << ", valgames: " << temp->valgames
-            std::cout << *(temp->player)<< ", permutation: " << temp->permutationTrack << "\t->\t";
-
-            std::cout << *(temp->team) << ", " <<temp->team->getSpirit() << "\n";
-
-        }
-    }
-
-    delete[] nodesArr;
-}
-
 StatusType Union_Find::remove_from_sets(shared_ptr<Team>& team) {
     shared_ptr<Node> demoTeam(new Node(
             make_shared<Player>(-1), team));
@@ -407,17 +343,3 @@ StatusType Union_Find::remove_from_sets(shared_ptr<Team>& team) {
 StatusType Union_Find::insert_to_sets(shared_ptr<Node>& set) {
     return this->sets->insert(set);
 }
-
-
-
-bool Union_Find::findTeam(int teamid) {
-    shared_ptr<Team> team(new Team(teamid));
-    shared_ptr<Node> demoTeam(new Node(
-            make_shared<Player>(-1), team));
-    output_t<RankNode<std::shared_ptr<Node>> *> output = this->sets->find(demoTeam);
-    if(output.status()!=StatusType::SUCCESS)
-        return false;
-    return true;
-}
-
-

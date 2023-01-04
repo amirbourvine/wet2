@@ -61,12 +61,6 @@ public:
 	
 	// } </DO-NOT-MODIFY>
 
-    //TO DELETE:
-    void printTeams_id();
-    void printTeams_ability();
-    int getActiveTeams() const;
-    void print_uf();
-    void print_uf2(int num);
 };
 
 #endif // WORLDCUP23A2_H_

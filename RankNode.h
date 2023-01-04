@@ -76,14 +76,6 @@ public:
 
     int inorderToArr(RankNode<T>* root_, T **arr, int size, int ind);
     output_t<RankNode<T>*> find_no_order(const T &value);
-
-    //to delete:
-    void print2DUtil(RankNode<T>* root, int space);
-    void print2D();
-    int getH();
-    RankNode<T>* getRight();
-    RankNode<T>* getLeft();
-    RankNode<T>* getUp();
 };
 
 template<class T>
@@ -361,33 +353,6 @@ output_t<int> RankNode<T>::rank(const T &value) {
     return num;
 }
 
-//not compiling
-template<class T>
-void RankNode<T>::print2DUtil(RankNode<T> *root, int space) {
-    // Base case
-    if (root == nullptr)
-        return;
-    if(root->isEmpty)
-        return;
-
-
-    // Increase distance between levels
-    space += COUNT;
-
-    // Process right child first
-    print2DUtil(root->right, space);
-
-    // Print current node after space
-    // count
-    cout << endl;
-    for (int i = COUNT; i < space; i++)
-        cout << " ";
-    T t= root->key;
-    cout << t << ", h:" << root->h << ", val:"<< root->val << "\n";
-
-    // Process left child
-    print2DUtil(root->left, space);
-}
 
 template<class T>
 output_t<bool> RankNode<T>::isLeaf() {
@@ -767,43 +732,6 @@ output_t<RankNode<T> *> RankNode<T>::remove(const T &value) {
     }
 
     return keep;
-}
-
-template<class T>
-int RankNode<T>::getH() {
-    if(this== nullptr){
-        return -1;
-    }
-    return this->h;
-}
-
-template<class T>
-RankNode<T> *RankNode<T>::getRight() {
-    if(this== nullptr){
-        return nullptr;
-    }
-    return this->right;
-}
-
-template<class T>
-RankNode<T> *RankNode<T>::getLeft() {
-    if(this== nullptr){
-        return nullptr;
-    }
-    return this->left;
-}
-
-template<class T>
-RankNode<T> *RankNode<T>::getUp() {
-    if(this== nullptr){
-        return nullptr;
-    }
-    return this->up;
-}
-
-template<class T>
-void RankNode<T>::print2D() {
-    print2DUtil(this, 0);
 }
 
 template<class T>

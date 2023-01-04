@@ -58,14 +58,6 @@ public:
     ~Hash_Table_Chain();
     StatusType insert(int key, const T& val);
     output_t<T> get(const T& demo_val, int key);
-
-    StatusType swap(const T &t1, const T& t2, int key1, int key2);
-
-    //to-delete
-    void printHash();
-    int getObjNum() const;
-    int getSize() const;
-    hash_obj<T>** returnNarrowedArray();
 };
 
 template<class T>
@@ -225,78 +217,6 @@ output_t<hash_obj<T>*> Hash_Table_Chain<T>::getAddr(RankTree<hash_obj<T>>* *arr_
         return output.status();
 
     return output.ans()->getKey().ans();
-}
-
-template<class T>
-void Hash_Table_Chain<T>::printHash() {
-    cout << "ARR_SIZE: " << this->size <<endl;
-    cout << "NUM_OBJ: " << this->objNum <<endl;
-    cout << "ARR:" <<endl;
-    for(int i = 0; i<this->size; i++){
-        if(!this->arr[i]->isEmpty()) {
-            cout << "*****************INDEX " << i << ":*****************" << endl;
-            this->arr[i]->print2D();
-        }
-    }
-    cout<<endl;
-}
-
-
-
-
-template<class T>
-int Hash_Table_Chain<T>::getObjNum() const{
-    return this->objNum;
-}
-
-template<class T>
-int Hash_Table_Chain<T>::getSize() const{
-    return this->size;
-}
-
-template<class T>
-StatusType Hash_Table_Chain<T>::swap(const T &t1, const T& t2, int key1, int key2) {
-    output_t<hash_obj<T>> output1 = this->getAux(this->arr, this->size, t1, key1);
-    if(output1.status()!=StatusType::SUCCESS){
-        return output1.status();
-    }
-    hash_obj<T> obj1 = output1.ans();
-
-    output_t<hash_obj<T>> output2 = this->getAux(this->arr, this->size, t2, key2);
-    if(output2.status()!=StatusType::SUCCESS){
-        return output2.status();
-    }
-    hash_obj<T> obj2 = output2.ans();
-
-    output_t<hash_obj<T>*> output11 = this->getAddr(this->arr, this->size, t1, key1);
-    if(output11.status()!=StatusType::SUCCESS){
-        return output11.status();
-    }
-    hash_obj<T>* addr1 = output11.ans();
-
-    output_t<hash_obj<T>*> output21 = this->getAddr(this->arr, this->size, t2, key2);
-    if(output21.status()!=StatusType::SUCCESS){
-        return output21.status();
-    }
-    hash_obj<T>* addr2 = output21.ans();
-
-    *addr1 = obj2;
-    *addr2 = obj1;
-
-    return StatusType::SUCCESS;
-}
-
-template<class T>
-hash_obj<T>** Hash_Table_Chain<T>::returnNarrowedArray() {
-    hash_obj<T>* *array = new hash_obj<T>*[this->objNum];
-    int index = 0;
-    int i = 0;
-    while(index < this->objNum){
-        this->arr[i]->inorderToArr(array+index, this->arr[i]->getSize());
-        index += this->arr[i]->getSize();
-        i++;
-    }
-    return array;
 }
 
 #endif //WET2_HASH_TABLE_CHAIN_H
