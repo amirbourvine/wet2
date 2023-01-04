@@ -33,7 +33,7 @@ public:
 	// <DO-NOT-MODIFY> {
 	
 	world_cup_t();
-	virtual ~world_cup_t();
+	virtual ~world_cup_t() = default;
 	
 	StatusType add_team(int teamId);
 	
@@ -69,4 +69,4 @@ public:
     void print_uf2(int num);
 };
 
-#endif // WORLDCUP23A1_H_
+#endif // WORLDCUP23A2_H_

@@ -19,7 +19,7 @@ typedef struct Node{
 
     std::shared_ptr<Node> next;
 
-    Node(shared_ptr<Player> player, shared_ptr<Team> team,
+    Node(const shared_ptr<Player>& player, const shared_ptr<Team>& team,
          const permutation_t& permutationTrack = permutation_t::neutral(), int gamesPlayed = 0){
         this->player = player;
         this->team = team;

@@ -47,7 +47,7 @@ public:
     bool isActive() const;
     void setNotActive();
     permutation_t getSpirit() const;
-    void addToSpirit(permutation_t permutation);
+    void addToSpirit(const permutation_t& permutation);
 
     StatusType add_player(const shared_ptr<Player>& p);
 };

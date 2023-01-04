@@ -28,10 +28,6 @@ world_cup_t::world_cup_t():
 {
 }
 
-world_cup_t::~world_cup_t()
-{
-}
-
 StatusType world_cup_t::add_team(int teamId)
 {
     if(teamId<=0){

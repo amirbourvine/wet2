@@ -7,7 +7,7 @@ using namespace std;
 
 Player::Player(int playerId) : playerId(playerId) {}
 
-Player::Player(int playerId, permutation_t spirit, int ability, int cards, bool goalKeeper):
+Player::Player(int playerId, const permutation_t& spirit, int ability, int cards, bool goalKeeper):
     playerId(playerId),
     spirit(spirit),
     ability(ability),

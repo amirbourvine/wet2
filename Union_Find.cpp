@@ -143,7 +143,7 @@ StatusType Union_Find::uniteSets(shared_ptr<Team>& team1, shared_ptr<Team>& team
     if(team2_found && team1_found)
         return unite_2_teams(set2, set1);
 
-    if(team2_found && (!team1_found)){
+    if(team2_found){
         StatusType st = this->remove_from_sets(set2->team);
         if (st != StatusType::SUCCESS) {
             return st;

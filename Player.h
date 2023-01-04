@@ -27,7 +27,7 @@ private:
 
 public:
     explicit Player(int playerId);
-    explicit Player(int playerId, permutation_t spirit, int ability, int cards, bool goalKeeper);
+    explicit Player(int playerId, const permutation_t& spirit, int ability, int cards, bool goalKeeper);
     Player(Player& other) = default;
     Player& operator=(const Player& other);
     ~Player() = default;

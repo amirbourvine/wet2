@@ -1,7 +1,6 @@
 //
 // Created by Elad on 25/11/2022.
 //
-#include <exception>
 #include <memory>
 #include "Team.h"
 
@@ -86,7 +85,7 @@ permutation_t Team::getSpirit() const{
     return spirit;
 }
 
-void Team::addToSpirit(permutation_t permutation){
+void Team::addToSpirit(const permutation_t& permutation){
     this->spirit = this->spirit * permutation;
 }
 
